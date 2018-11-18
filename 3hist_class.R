@@ -1,9 +1,14 @@
-rm(list=setdiff(ls(), "rels"))
+options(stringsAsFactors = FALSE)
+
+library(colorspace)
+
+# rm(list=setdiff(ls(), "rels"))
 
 estimator<-"MEst"
 
-v5<-rels
+v5<-reals #or rels for simulation
 v5$IBD<-v5[,estimator]
+# v5$expected<-v5$biparental
 
 catcol<-rainbow_hcl(12, alpha=0.5)[c(1,5,8,10,12)]
 borcol<-rainbow_hcl(12, alpha=0.9)[c(1,5,8,10,12)]
@@ -26,7 +31,7 @@ windows()
       border=borcol[3])
   hist(v5$IBD[which(v5$expected==0)], probability = FALSE, 
        col=catcol[1], add=TRUE, border=borcol[1], breaks=breks)
-  hist(v5$IBD[which(v5$expected==0.5 & v5$RelCat=="FS")], probability = FALSE, 
+  hist(v5$IBD[which(v5$expected==0.5 & v5$RelCat=="PO")], probability = FALSE, 
        col=catcol[4], add=TRUE, border=borcol[4], breaks=breks)
   hist(v5$IBD[which(v5$expected==0.125)], probability = FALSE, 
        col=catcol[5], add=TRUE, border=borcol[5], breaks=breks)
@@ -36,7 +41,7 @@ windows()
 }
 
 w<-v5$IBD[which(v5$expected==0.0)]
-x<-v5$IBD[which(v5$expected==0.5 & v5$RelCat=="FS")]
+x<-v5$IBD[which(v5$expected==0.5 & v5$RelCat=="PO")]
 y<-v5$IBD[which(v5$expected==0.25)]
 z<-v5$IBD[which(v5$expected==0.125)]
 a<-v5$IBD[which(v5$expected==0.0625)]

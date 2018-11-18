@@ -1,4 +1,4 @@
-setwd("C:/Users/froug/Desktop/Real First Chapter")
+# setwd("..")
 
 options(stringsAsFactors = FALSE)
 
@@ -19,8 +19,6 @@ check<-cbind(raw[,2],as.data.frame(check))
 write.table(check, sep="\t", file="coancestry_version.txt", row.names = FALSE, col.names = FALSE)
 
 #use coancestry empirical to generate allele frequencies
-
-freqs <- read.table("C:/ZSL/Coancestry/getfreqs/FrequencyData.txt") #just to check dimensions
 
 #error file
 
@@ -65,7 +63,7 @@ write.table(family_mat, sep="\t", file="true_rel2sim.txt", row.names = FALSE, co
 #add into coancestry to simulate coefficients
 #takes about 5 min to run
 
-rels <- read.table("C:/ZSL/Coancestry/sim4156_noaccount/RelatednessEstimates.txt", sep=",", row.names=1)
+rels <- read.table("C:/ZSL/Coancestry/sim_maf05/RelatednessEstimates.txt", sep=",", row.names=1)
 
 names(rels)<-c("Ind1","Ind2","RelCat", "TrioEst","WEst","LLEst","LREst","REst","QGEst","MEst")
 
@@ -146,7 +144,7 @@ boxplot(value~variable, data=m[m$RelCat=="FC",], col=rainbow(7),
         yaxt="n", 
         cex.lab=1.3,
         boxwex=0.5,
-        main="First Cousins")
+        main="Avuncular")
 
 axis(2,las=1, cex.axis=1.3)
 
@@ -227,156 +225,3 @@ cor_all<-apply(rels[,c(4:10)], 2, function(x) {cor(x, rels$expected)})
 rmse_comb<-rbind(rmse_po, rmse_fs, rmse_hs, rmse_fc, rmse_hc, rmse_ur, rmse_all, cor_all)
 
 # write.csv(rmse_comb, "rmse_account_error.csv")
-
-
-
-
-
-
-
-
-
-
-
-#get expected relatedness values for all 265 individuals
-
-
-life_history<-read.delim("RawData/LifeHistory20180717.txt", header=TRUE, sep="\t")
-
-lhl<-life_history[!duplicated(life_history$dolphin_id),]
-
-lhl$father_id[which(lhl$dolphin_id=="AGA")]<-"VEE"
-lhl$father_id[which(lhl$dolphin_id=="WHP")]<-"TRN"
-lhl$mother_id[which(lhl$dolphin_id=="SHO")]<-"SCU"
-lhl$mother_id[which(lhl$dolphin_id=="KID")]<-"RAN"
-
-kinship<-expected_kinship(id="dolphin_id", data=lhl) #keep for Fig 1
-
-focals<-check[,1]
-
-focal_kinship<-kinship[which(kinship$ID1 %in% focals &
-                               kinship$ID2 %in% focals),]
-
-tmp_kin<-focal_kinship[which(focal_kinship$biparental %in% c(0.125, 0.25, 0.5)),]
-
-tmp_focal<-unique(c(tmp_kin$ID1, tmp_kin$ID2))
-
-tmp_kin<-focal_kinship[which(focal_kinship$ID1 %in% tmp_focal &
-                               focal_kinship$ID2 %in% tmp_focal),]
-
-little_check<-check[check[,1] %in% tmp_focal,]
-
-write.table(little_check, sep="\t", file="coancestry_empirical.txt", row.names = FALSE, col.names = FALSE)
-
-
-#Coancestry results on real data
-reals<-read.table("C:/ZSL/Coancestry/realped/RelatednessEstimates.Txt", sep=",", row.names = 1)
-
-names(reals)<-c("ID1", "ID2", "Pair", "TrioEst","WEst","LLEst","LREst","REst","QGEst","MEst")
-
-reals<-reals[-ncol(reals)] #remove empty loiselle column
-
-reals<-merge_pairs(reals, tmp_kin, "ID1", "ID2", all.x=TRUE, all.y=FALSE)
-
-
-reals$RelCat <- character(nrow(reals))
-
-reals$RelCat[reals$biparental==0.5]<-"PO"
-reals$RelCat[reals$biparental==0.5 & reals$maternal==0.25]<-"FS"
-reals$RelCat[reals$biparental==0.25]<-"HS"
-reals$RelCat[reals$biparental==0.125]<-"FC"
-reals$RelCat[reals$biparental==0]<-"UR"
-
-#melt
-
-m<-reshape2::melt(reals[,c(1:3, 14, 4:10)], id.vars=c("ID1", "ID2", "Pair", "RelCat"))
-
-m$value<-as.numeric(m$value)
-
-
-windows()
-# pdf(file="allcats2.pdf", width=7)
-# par(mfrow=c(4,1),mar=c(2.6,10.8,2.1,2.1), mgp=c(4,1,0))
-
-par(mfrow=c(5,1), oma = (c(6,6,0,0) + 0.1), mar = (c(0.5,0,1.5,1) + 0.1))
-
-boxplot(value~variable, data=m[m$RelCat=="PO",], col=rainbow(7),
-        ylab="", 
-        xaxt="n", 
-        yaxt="n", 
-        cex.lab=1.3,
-        boxwex=0.5,
-        # ylim=c(0.33,0.6),
-        main="Parent-Offspring")
-
-axis(2,las=1, cex.axis=1.3)
-
-abline(h=0.5, lty=2, col="darkgrey")
-
-boxplot(value~variable, data=m[m$RelCat=="FS",], col=rainbow(7),
-        ylab="", 
-        xaxt="n", 
-        yaxt="n", 
-        cex.lab=1.3,
-        boxwex=0.5,
-        # ylim=c(0.33,0.6),
-        main="Full Siblings", cex.main=1.3)
-
-axis(2,las=1, cex.axis=1.3)
-
-abline(h=0.5, lty=2, col="darkgrey")
-
-boxplot(value~variable, data=m[m$RelCat=="HS",], col=rainbow(7),
-        ylab="", 
-        xaxt="n", 
-        yaxt="n", 
-        cex.lab=1.3,
-        boxwex=0.5,
-        main="Half Siblings")
-
-axis(2,las=1, cex.axis=1.3)
-
-abline(h=0.25, lty=2, col="darkgrey")
-
-boxplot(value~variable, data=m[m$RelCat=="FC",], col=rainbow(7),
-        ylab="", 
-        xaxt="n", 
-        yaxt="n", 
-        cex.lab=1.3,
-        boxwex=0.5,
-        main="First Cousins")
-
-axis(2,las=1, cex.axis=1.3)
-
-abline(h=0.125, lty=2, col="darkgrey")
-
-boxplot(value~variable, data=m[m$RelCat=="UR",], col=rainbow(7),
-        ylab="", 
-        xaxt="n", 
-        yaxt="n", 
-        cex.lab=1.3,
-        boxwex=0.5,
-        main="Unrelated")
-
-axis(2,las=1, cex.axis=1.3)
-
-axis(1, at=1:7, labels=c("TrioEst","WEst","LLEst","LREst","REst","QGEst","MEst"), 
-     tick=TRUE, cex.axis=1.3, padj = 0.5, las=1)
-
-abline(h=0, lty=2, col="darkgrey")
-
-title(xlab = "Estimator",
-      ylab = "Relatedness Coefficient",
-      outer = TRUE, line = 4, cex.lab=1.5)
-
-##RMSE Calculation
-
-rmse_all<-apply(reals[,c(4:10)], 2, function(x) {
-  sqrt((1/nrow(reals))*sum(abs(x-reals$biparental)^2))})
-
-#per category calculation
-
-
-
-
-

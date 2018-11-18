@@ -8,7 +8,7 @@
 #Format for Plink
 
 #Read in raw datasets for single and double file, and ID key
-setwd("C:/Users/froug/Desktop/Real First Chapter")
+setwd("..")
 
 options(stringsAsFactors = FALSE)
 
@@ -88,7 +88,7 @@ sexes<-apply(sexes,2,as.numeric)
 
 sexes<-t(rbind(sexes, colSums(sexes)))
 
-sex_output<-write.csv(single_raw[x,], file="sex_loci.csv")
+# write.csv(single_raw[x,], file="sex_loci.csv")
 
 #add sexes to ID key
 
@@ -103,7 +103,7 @@ single_raw<-single_raw[-x,]
 #Check percent identity between duplicate samples, and remove snps from list that typed differently
 
 #Identify duplicate samples
-dups<-c("BLI", "SCA", "SOG", "FSB", "PHO", "LAS", "SHO", "STA", "JUP") #removed JUP, not in analysis
+dups<-c("BLI", "SCA", "SOG", "FSB", "PHO", "LAS", "SHO", "STA", "JUP") 
 error_rate<-list()
 
 #This calculates the error rates in duplicate samples
@@ -153,8 +153,8 @@ double<-double_raw[,!names(double_raw) %in% minus]
 
 single$dissum<-apply(single[,grep("remove",names(single))], 1,function(w) {ds<-sum(w=="disagree", na.rm=TRUE); return(ds)})
 
-
-write.csv(single, "../for_error_rate.csv")
+#calculate new error rate from filtered data at the end
+write.csv(single, file="../for_error_rate.csv")
 
 single<-single[which(single$dissum<=1),]
                  

@@ -1,4 +1,4 @@
-estimator<-"QGEst"
+estimator<-"TrioEst"
 
 v5<-rels
 v5$IBD<-v5[,estimator]

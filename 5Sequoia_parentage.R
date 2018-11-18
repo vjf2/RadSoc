@@ -6,8 +6,8 @@ library(sequoia)
 library(SocGen)
 
 #create life history input 
-ID_key <- read.csv("../RawData/dolphin_sample_key.csv")
-lhl <- read.delim("../RawData/LifeHistory20180717.txt",
+ID_key <- read.csv("RawData/dolphin_sample_key.csv")
+lhl <- read.delim("RawData/LifeHistory20180717.txt",
              header = TRUE,
              sep = "\t")
 
@@ -37,13 +37,13 @@ lkin <- kinship[which(kinship$ID1 %in% ID_key$Dolphin_ID &
                         kinship$ID2 %in% ID_key$Dolphin_ID), ]
 
 #load in plink raw file
-plink_raw <- "../sequoia4p.raw"
+plink_raw <- "sequoia4p.raw"
 
 maf4loci <- GenoConvert(plink_raw, "raw")
 
 ped_with_sibs <- sequoia(GenoM = maf4loci,
                               LifeHistData = LH_dolphins,
-                              Err=0.0266,
+                              Err=0.0161,
                               MaxSibIter = 20, 
                               MaxSibshipSize = 20)
 
@@ -51,7 +51,7 @@ summary(ped_with_sibs)
 
 ped<-ped_with_sibs$Pedigree
 
-SNPd=c(ID_key$Dolphin_ID[which(ID_key$me_paper=="yes")], "JUP", "ABC", "ANE", "ZUL", "NET", "APO", "FCH", "ORY","ATC", "GRV", "MNK", "WON", "HEL", "DUD") #adding in UVE causes compare to fail
+SNPd=c(ID_key$Dolphin_ID[which(ID_key$me_paper=="yes")], "JUP", "ABC", "ANE", "ZUL", "NET", "APO", "FCH", "ORY","ATC", "GRV", "MNK", "WON", "HEL", "DUD", "UVE") #adding in UVE causes compare to fail sometimes
 
 
 compareOUT <- PedCompare(Ped1 = lhl[,c("dolphin_id", "mother_id", "father_id")], Ped2 = ped, na1="",
@@ -66,3 +66,16 @@ newkin<-expected_kinship(mother_id = "dam",
 
                        
 # write.csv(ped, "sequoia_pedigree_output.csv")
+
+parented<-consensusped[which(consensusped$dam!="<NA>" & consensusped$sire!="<NA>" &
+                               consensusped$id %in% SNPd),]
+
+
+
+
+
+
+
+
+
+

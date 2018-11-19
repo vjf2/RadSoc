@@ -28,14 +28,14 @@ tc<-t(check[,-1])
 
 cs<-colSums(check==0)
 
-missing<-cs/280
+missing<-cs/nrow(check)
 
 odds<-seq(2,length(missing),2)
 
 missing_rates<-missing[odds]
 
 error_rates<-matrix(rbind(missing_rates, 
-                    rep(0.0161, length(missing_rates)), 
+                    rep(0.01895, length(missing_rates)), 
                         rep(0, length(missing_rates))), nrow=3)
 
 write.table(t(error_rates), sep=" ", file="coancestry_error_rates.txt", row.names = FALSE, col.names = FALSE)
@@ -63,11 +63,11 @@ write.table(family_mat, sep="\t", file="true_rel2sim.txt", row.names = FALSE, co
 #add into coancestry to simulate coefficients
 #takes about 5 min to run
 
-rels <- read.table("C:/ZSL/Coancestry/sim_maf05/RelatednessEstimates.txt", sep=",", row.names=1)
+rels <- read.table("C:/ZSL/Coancestry/sim4235/RelatednessEstimates.txt", sep=",", row.names=1)
 
 names(rels)<-c("Ind1","Ind2","RelCat", "TrioEst","WEst","LLEst","LREst","REst","QGEst","MEst")
 
-rels<-rels[,c(1:10)]
+rels<-rels[,c(1:5, 7:10)] #Remove Lynchli because the same as Wang for two alleles
 
 #Rename relcat
 
@@ -86,8 +86,6 @@ m<-reshape2::melt(rels, id.vars=c("Ind1", "Ind2", "RelCat"), na.rm=TRUE)
 
 m$value<-as.numeric(m$value)
 
-#check genotype data - do we really have mistypings and missing data
-
 
 #don't forget to remove either wang or lynchli at end
 
@@ -95,12 +93,12 @@ m$value<-as.numeric(m$value)
 #4 plots
 
 windows()
-# pdf(file="allcats2.pdf", width=7)
-# par(mfrow=c(4,1),mar=c(2.6,10.8,2.1,2.1), mgp=c(4,1,0))
+# pdf(file="Figures/simcats.pdf", width=7)
+# par(mfrow=c(5,1),mar=c(2.6,10.8,2.1,2.1), oma=c(3,3,0,0), mgp=c(4,1,0))
 
-par(mfrow=c(6,1), oma = (c(6,6,0,0) + 0.1), mar = (c(0.5,0,1.5,1) + 0.1))
+par(mfrow=c(5,1), oma = (c(6,6,0,0) + 0.1), mar = (c(0.5,0,1.5,1) + 0.1))
 
-boxplot(value~variable, data=m[m$RelCat=="PO",], col=rainbow(7),
+boxplot(value~variable, data=m[m$RelCat=="PO",], col=rainbow(6),
         ylab="", 
         xaxt="n", 
         yaxt="n", 
@@ -113,20 +111,21 @@ axis(2,las=1, cex.axis=1.3)
 
 abline(h=0.5, lty=2, col="darkgrey")
 
-boxplot(value~variable, data=m[m$RelCat=="FS",], col=rainbow(7),
-        ylab="", 
-        xaxt="n", 
-        yaxt="n", 
-        cex.lab=1.3,
-        boxwex=0.5,
-        # ylim=c(0.33,0.6),
-        main="Full Siblings", cex.main=1.3)
+# Leave out full siblings since few expected
+# boxplot(value~variable, data=m[m$RelCat=="FS",], col=rainbow(6),
+#         ylab="", 
+#         xaxt="n", 
+#         yaxt="n", 
+#         cex.lab=1.3,
+#         boxwex=0.5,
+#         # ylim=c(0.33,0.6),
+#         main="Full Siblings", cex.main=1.3)
+# 
+# axis(2,las=1, cex.axis=1.3)
+# 
+# abline(h=0.5, lty=2, col="darkgrey")
 
-axis(2,las=1, cex.axis=1.3)
-
-abline(h=0.5, lty=2, col="darkgrey")
-
-boxplot(value~variable, data=m[m$RelCat=="HS",], col=rainbow(7),
+boxplot(value~variable, data=m[m$RelCat=="HS",], col=rainbow(6),
         ylab="", 
         xaxt="n", 
         yaxt="n", 
@@ -138,19 +137,19 @@ axis(2,las=1, cex.axis=1.3)
 
 abline(h=0.25, lty=2, col="darkgrey")
 
-boxplot(value~variable, data=m[m$RelCat=="FC",], col=rainbow(7),
+boxplot(value~variable, data=m[m$RelCat=="FC",], col=rainbow(6),
         ylab="", 
         xaxt="n", 
         yaxt="n", 
         cex.lab=1.3,
         boxwex=0.5,
-        main="Avuncular")
+        main="Half Avuncular")
 
 axis(2,las=1, cex.axis=1.3)
 
 abline(h=0.125, lty=2, col="darkgrey")
 
-boxplot(value~variable, data=m[m$RelCat=="HC",], col=rainbow(7),
+boxplot(value~variable, data=m[m$RelCat=="HC",], col=rainbow(6),
         ylab="", 
         xaxt="n", 
         yaxt="n", 
@@ -162,7 +161,7 @@ axis(2,las=1, cex.axis=1.3)
 
 abline(h=0.0625, lty=2, col="darkgrey")
 
-boxplot(value~variable, data=m[m$RelCat=="UR",], col=rainbow(7),
+boxplot(value~variable, data=m[m$RelCat=="UR",], col=rainbow(6),
         ylab="", 
         xaxt="n", 
         yaxt="n", 
@@ -172,7 +171,7 @@ boxplot(value~variable, data=m[m$RelCat=="UR",], col=rainbow(7),
 
 axis(2,las=1, cex.axis=1.3)
 
-axis(1, at=1:7, labels=c("TrioEst","WEst","LLEst","LREst","REst","QGEst","MEst"), 
+axis(1, at=1:6, labels=c("TrioEst","WEst","LREst","REst","QGEst","MEst"), 
      tick=TRUE, cex.axis=1.3, padj = 0.5, las=1)
 
 abline(h=0, lty=2, col="darkgrey")
@@ -183,7 +182,6 @@ title(xlab = "Estimator",
 
 
 dev.off()
-
 #Different (and worse?) results when account for mistypings is included
 #Check with real data and simulated
 
@@ -198,30 +196,35 @@ rels$expected[rels$RelCat=="UR"]<-0
 
 rels$expected<-as.numeric(rels$expected)
 
-rmse_po<-apply(rels[rels$RelCat=="PO",c(4:10)], 2, function(x) {
+#remove FS category since few expected
+rels<-rels[!rels$RelCat=="FS",]
+
+rmse_po<-apply(rels[rels$RelCat=="PO",c(4:9)], 2, function(x) {
   sqrt((1/nrow(rels[rels$RelCat=="PO",]))*sum(abs(x-rels[rels$RelCat=="PO","expected"])^2))})
 
-rmse_fs<-apply(rels[rels$RelCat=="FS",c(4:10)], 2, function(x) {
-  sqrt((1/nrow(rels[rels$RelCat=="FS",]))*sum(abs(x-rels[rels$RelCat=="FS","expected"])^2))})
+# rmse_fs<-apply(rels[rels$RelCat=="FS",c(4:9)], 2, function(x) {
+  # sqrt((1/nrow(rels[rels$RelCat=="FS",]))*sum(abs(x-rels[rels$RelCat=="FS","expected"])^2))})
 
-rmse_hs<-apply(rels[rels$RelCat=="HS",c(4:10)], 2, function(x) {
+rmse_hs<-apply(rels[rels$RelCat=="HS",c(4:9)], 2, function(x) {
   sqrt((1/nrow(rels[rels$RelCat=="HS",]))*sum(abs(x-rels[rels$RelCat=="HS","expected"])^2))})
 
-rmse_fc<-apply(rels[rels$RelCat=="FC",c(4:10)], 2, function(x) {
+rmse_fc<-apply(rels[rels$RelCat=="FC",c(4:9)], 2, function(x) {
   sqrt((1/nrow(rels[rels$RelCat=="FC",]))*sum(abs(x-rels[rels$RelCat=="FC","expected"])^2))})
 
-rmse_hc<-apply(rels[rels$RelCat=="HC",c(4:10)], 2, function(x) {
+rmse_hc<-apply(rels[rels$RelCat=="HC",c(4:9)], 2, function(x) {
   sqrt((1/nrow(rels[rels$RelCat=="HC",]))*sum(abs(x-rels[rels$RelCat=="HC","expected"])^2))})
 
-rmse_ur<-apply(rels[rels$RelCat=="UR",c(4:10)], 2, function(x) {
+rmse_ur<-apply(rels[rels$RelCat=="UR",c(4:9)], 2, function(x) {
   sqrt((1/nrow(rels[rels$RelCat=="UR",]))*sum(abs(x-rels[rels$RelCat=="UR","expected"])^2))})
 
-rmse_all<-apply(rels[,c(4:10)], 2, function(x) {
+rmse_all<-apply(rels[,c(4:9)], 2, function(x) {
   sqrt((1/nrow(rels))*sum(abs(x-rels$expected)^2))})
 
 
-cor_all<-apply(rels[,c(4:10)], 2, function(x) {cor(x, rels$expected)})
+cor_all<-apply(rels[,c(4:9)], 2, function(x) {cor(x, rels$expected)})
 
-rmse_comb<-rbind(rmse_po, rmse_fs, rmse_hs, rmse_fc, rmse_hc, rmse_ur, rmse_all, cor_all)
+rmse_comb<-rbind(rmse_po, 
+                 # rmse_fs, 
+                 rmse_hs, rmse_fc, rmse_hc, rmse_ur, rmse_all, cor_all)
 
-# write.csv(rmse_comb, "rmse_account_error.csv")
+# write.csv(rmse_comb, "Figures/rmse_sim_error.csv")

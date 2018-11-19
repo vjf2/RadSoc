@@ -1,4 +1,4 @@
-estimator<-"TrioEst"
+estimator<-"MEst"
 
 v5<-rels
 v5$IBD<-v5[,estimator]
@@ -110,18 +110,31 @@ co$width<-co$Var2-co$Var1
 
 #combine co, co1, and co2
 
-rect(xleft = 0.0351, ybottom = 0 , xright = 0.0411, ytop = 70 , col = adjustcolor("darkgrey", alpha=0.9), border=NA)
+# rect(xleft = 0.0357, ybottom = 0 , xright = 0.0372, ytop = 60 , col = adjustcolor("darkgrey", alpha=0.9), border=NA)
+# 
+# rect(xleft = 0.0901, ybottom = 0 , xright = 0.0976, ytop = 60 , col = adjustcolor("darkgrey", alpha=0.9), border=NA)
 
+text(x = 0.021, y=40, "97%", cex=0.8)
+text(x = 0.065, y=40, "85%", cex=0.8)
+text(x = 0.13, y=40, "96%", cex=0.8)
+text(x = 0.25, y=40, "100%", cex=0.8)
+text(x = 0.45, y=40, "100%", cex=0.8)
 
-rect(xleft = 0.0862, ybottom = 0 , xright = 0.0962, ytop = 70 , col = adjustcolor("darkgrey", alpha=0.9), border=NA)
+text(x = 0.021, y=37, "5%", col="red", cex=0.8) #false positive
+text(x = 0.065, y=37, "5%", col="red", cex=0.8) #false positive
+text(x = 0.13, y=37, "5%", col="red", cex=0.8) #false positive
+text(x = 0.25, y=37, "0%", col="red", cex=0.8) #false positive
+text(x = 0.45, y=37, "0%", col="red", cex=0.8) #false positive
 
-text(x = 0.025, y=40, "98%")
-text(x = 0.06
-     , y=40, "84%")
-text(x = 0.12, y=40, "89%")
-text(x = 0.23, y=40, "100%")
-text(x = 0.44, y=40, "100%")
+title(main="Simulated Data")
 
-title(main="MEst_sim4156_noaccount")
+b1<-0.0362
+b2<-0.0935
+b3<-(max(v5$IBD[which(v5$expected==0.125)])+min(v5$IBD[which(v5$expected==0.25)]))/2
+b4<-(max(v5$IBD[which(v5$expected==0.25)])+min(v5$IBD[which(v5$expected==0.5)]))/2
 
+segments(x0=b1, y0=0, x1=b1, y1=60, lty=3)
+segments(x0=b2, y0=0, x1=b2, y1=60, lty=3)
+segments(x0=b3, y0=0, x1=b3, y1=60, lty=3)
+segments(x0=b4, y0=0, x1=b4, y1=60, lty=3)
 

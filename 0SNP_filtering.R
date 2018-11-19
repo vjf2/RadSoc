@@ -103,7 +103,7 @@ single_raw<-single_raw[-x,]
 #Check percent identity between duplicate samples, and remove snps from list that typed differently
 
 #Identify duplicate samples
-dups<-c("BLI", "SCA", "SOG", "FSB", "PHO", "LAS", "SHO", "STA", "JUP") 
+dups<-c("BLI", "SCA", "SOG", "FSB", "LAS", "STA", "JUP") #remove SHO and PHO bad samples
 error_rate<-list()
 
 #This calculates the error rates in duplicate samples
@@ -154,7 +154,7 @@ double<-double_raw[,!names(double_raw) %in% minus]
 single$dissum<-apply(single[,grep("remove",names(single))], 1,function(w) {ds<-sum(w=="disagree", na.rm=TRUE); return(ds)})
 
 #calculate new error rate from filtered data at the end
-write.csv(single, file="../for_error_rate.csv")
+#write.csv(single, file="for_error_rate.csv")
 
 single<-single[which(single$dissum<=1),]
                  
@@ -163,11 +163,19 @@ single<-single[,-(grep("remove",names(single)))]
 
 #Note - skip HWE and MAF check here, do in plink instead
 
+#Remove any samples with more than 10% missing (added to ID_key so don't have to redo)
+# 
+# g10<-percent_missing[which(percent_missing>0.10)]
+# 
+# single<-single[,setdiff(names(single), names(g10))]
+
 #Filter on average number of reads
 
 single$TotalAvg<-as.numeric(single$AvgCountRef)+as.numeric(single$AvgCountSnp)
 
 single<-single[which(single$TotalAvg>=10),]
+
+# dolphins_to_include<-setdiff(dolphins_to_include, ID_key$Dolphin_ID[which(ID_key$Sample_ID %in% names(g10))])
 
 #Remove on CallRate and maximum heterozygosity filter
 

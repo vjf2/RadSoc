@@ -4,7 +4,7 @@
 
 options(stringsAsFactors = FALSE)
 
-reals<-read.table("C:/ZSL/Coancestry/emp_4146/RelatednessEstimates.Txt", sep=",", row.names = 1)
+reals<-read.table("C:/ZSL/Coancestry/emp4235/RelatednessEstimates.Txt", sep=",", row.names = 1)
 
 names(reals)<-c("ID1", "ID2", "Pair", "TrioEst","WEst","LLEst","LREst","REst","QGEst","MEst")
 
@@ -16,16 +16,14 @@ names(r)[3]<-"relatedness"
 
 r<-rbind(r, data.frame(ID1=consensusped$id, ID2=consensusped$id, relatedness=rep(1, length(consensusped$id))))
 
-# bothpar<-consensusped[which(consensusped$dam.cat=="GG" & consensusped$sire.cat=="GG"
-#                              | consensusped$id=="FCH" | consensusped$id=="CLV"),]
-
-#CLV and FCH need to be added back in
-
 bothpar<-parented[,1:3]
 
 #can add dummy parents in 
 
 pedids<-bothpar$id
+
+#rm JMY, unsupported
+pedids<-setdiff(pedids, "JMY")
 
 r1<-r[intersect(which(r$ID1 %in% pedids),  which(r$ID2 %in% pedids)),]
 
@@ -58,18 +56,42 @@ write.csv(re, "classifications.csv")
 
 table(re$biparental)
 
-#add in more known relatives
+aggregate(relatedness.x~biparental, data=re, mean)
 
-#add in all individs with two known parents, and all parent-offspring
-#dummy parents
+#remove unknowns that don't have all parents typed
+#remove ones were parents are related
+#unsupported old data
+#add parents back-in 
 
-#Use 95/97% of simulated data to assign relatives 
+#set up 6400 iterations of MLE in Coancestry
 
-#Get better error rate
+re$countna<-apply(re[,9:12], 1, function(x) sum(is.na(x)))
+
+re$rmrel<-ifelse(re$biparental=="0" & re$countna>0, "yes", "")
+
+re$relsum<-apply(re[,9:12], 1, function(x) sum(x, na.rm=TRUE))
+
+re$rmrel<-ifelse(re$biparental=="0" & re$relsum>0.05, "yes", re$rmrel)
+
+re$rmrel<-ifelse(re$biparental=="0.125" & re$countna>2, "yes", re$rmrel)
 
 
 
+ref<-re[which(re$rmrel!="yes"),]
+
+table(ref$biparental)
 
 
+#add in known parents
 
+re2<-merge_pairs(r, newkin[,c(1,2,5)], "ID1", "ID2", "ID1", "ID2", all.x=TRUE, all.y=FALSE)
 
+repar<-re2[which(re2$biparental==0.5),]
+
+names(repar)[3]<-"relatedness.x"
+
+ref<-rbind(ref[,1:4], repar)
+
+ref<-reduce_pairs(ref, "ID1", "ID2")
+
+#reduce pairs at end

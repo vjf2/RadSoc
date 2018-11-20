@@ -23,7 +23,7 @@ names(combns)<-c("nsnps", "nind")
 
 combns<-combns[-nrow(combns),]
 
-freqs<-read.table("FrequencyData.txt")
+#freqs<-read.table("FrequencyData.txt")
 #one line for alleles (4, 2)
 #one line for frequencies
 
@@ -38,41 +38,58 @@ trio<-readLines("C:/ZSL/Coancestry/emp4235/TrioR.Dat")
 pathpre<-"'C:\\ZSL\\Coancestry\\"
 pathsuf<-"\\OutPut.txt'"
 
-newf<-"test"
+#add iterations
 
-newpath<-paste0(pathpre, newf, pathsuf)
+#start loop 
 
-trio[1]<-newpath
+iter<-100
 
-trio[2]<-400
+for (i in 1:nrow(combns)) {
 
-trio[3]<-substr(trio[3],1,(400*2))
-
-trio[9]<-50
-
-trio[10]<-paste(rep("0.01895 ", 400), collapse = " ")
-
-
-
-# dir.create(paste0("C:\\ZSL\\Coancestry\\", newf))
-
-writeLines(trio, con=paste0("C:\\ZSL\\Coancestry\\", newf, "\\TrioR.Dat"))
-
-#may not need frequency data if unknown selected
-
-#generate genotype file
-
-new_subjects<-sample(rownames(full_co), 50)
-
-new_snps<-sample(1:nsnps, 400)
-
-new_snps_col<-which(colIDs %in% new_snps)
-
-new_co<-full_co[new_subjects, new_snps_col]
-
-write.table(new_co, file=paste0("C:\\ZSL\\Coancestry\\", newf, "\\GenotypeData.txt"), 
-            row.names=TRUE, col.names = FALSE, sep=" ")
-
+j<-1
+  
+  replicate(iter, {
+      
+  snp<-combns[i,1]
+  samp<-combns[i,2]
+  
+  newf<-paste0("s", snp, "_", samp, "_")
+  
+  newpath<-paste0(pathpre, newf, pathsuf)
+  
+  trio[1]<-newpath
+  
+  trio[2]<-snp
+  
+  trio[3]<-paste(rep(2, snp), collapse = " ")
+  
+  trio[9]<-samp
+  
+  trio[10]<-paste(rep("0.01895", snp), collapse = " ")
+  
+  dir.create(paste0("C:\\ZSL\\Coancestry\\", newf))
+  
+  writeLines(trio, con=paste0("C:\\ZSL\\Coancestry\\", newf, "\\TrioR.Dat"))
+  
+  #may not need frequency data if unknown selected
+  
+  #generate genotype file
+  
+  new_subjects<-sample(rownames(full_co), samp)
+  
+  new_snps<-sample(1:nsnps, snp)
+  
+  new_snps_col<-which(colIDs %in% new_snps)
+  
+  new_co<-full_co[new_subjects, new_snps_col]
+  
+  write.table(new_co, file=paste0("C:\\ZSL\\Coancestry\\", newf, "\\GenotypeData.txt"), 
+              row.names=TRUE, col.names = FALSE, sep=" ")
+  
+  j<<-j+1
+  
+  })
+}
 
 #Output genotype, freq, and trio into unique folder
 

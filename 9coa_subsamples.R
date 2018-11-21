@@ -8,7 +8,7 @@ options(stringsAsFactors = FALSE)
 
 # full_co<-read.table(file="coancestry_version.txt", row.names = 1)
 
-full_co<-read.table("C:/ZSL/Coancestry/emp4235/GenotypeData.txt", row.names = 1, sep="")
+full_co<-read.table("C:/Users/vjf2/Desktop/emp4235/GenotypeData.txt", row.names = 1, sep="")
 
 nmax<-nrow(full_co)
 nsnps<-ncol(full_co)/2
@@ -27,7 +27,7 @@ combns<-combns[-nrow(combns),]
 #one line for alleles (4, 2)
 #one line for frequencies
 
-trio<-readLines("C:/ZSL/Coancestry/emp4235/TrioR.Dat")
+trio<-readLines("C:/Users/vjf2/Desktop/emp4235/TrioR.Dat")
 #12 lines total 
 
 #change line 1, output path
@@ -53,7 +53,7 @@ j<-1
   snp<-combns[i,1]
   samp<-combns[i,2]
   
-  newf<-paste0("s", snp, "_", samp, "_")
+  newf<-paste0("s", snp, "_", samp, "_", j)
   
   newpath<-paste0(pathpre, newf, pathsuf)
   
@@ -93,6 +93,7 @@ j<-1
 
 #Output genotype, freq, and trio into unique folder
 
+#next time add output counter
 
 
 
@@ -106,6 +107,28 @@ j<-1
 
 #maybe don't both saving results if quick to read and overwrite?
 
+#write batch script
 
+lf<-list.files()
+lf<-lf[grep("s[[:digit:]]", lf)]
+
+write.csv(lf, "lf.csv")
+
+lf<-paste0("cd C:\\ZSL\\Coancestry\\", lf)
+runcmd<-rep("..\\trior10", length(lf))
+
+script<-c(rbind(lf, runcmd))
+
+writeLines(script, "batch_coancestry.bat")
+
+xfiles<-list.files(pattern="RelatednessEstimates", recursive = TRUE)
+xfiles<-xfiles[grep("_", xfiles)]
+
+res<-lapply(xfiles, function(x) read.table(x, sep=",", row.names = 1)) 
+names(res)<-xfiles
+
+save(res, file="res.RData")
+
+#find code to merge all the relatedness estimtates together, average, and plt
 
 

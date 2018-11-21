@@ -22,7 +22,7 @@ start<-Sys.time()
 for (j in 1:nb) {
   
   dis<-res[[j]]
-  names(dis)<-c("Row", "Ind1","Ind2","Pair","TrioEst","WEst","LLEst","LREst","REst","QGEst","MEst")
+  names(dis)<-c("Ind1","Ind2","Pair","TrioEst","WEst","LLEst","LREst","REst","QGEst","MEst")
   dis<-dis[,-ncol(dis)]
   
   names(res)[j]
@@ -65,7 +65,7 @@ s2<-with(stats, acast(stats, nsnps~nind))
 #fill in real data number
 s2[nrow(s2), ncol(s2)]<-0
 
-errorcol="gold3"
+errorcol="darkgreen"
 
 # The plot
 windows()
@@ -86,7 +86,7 @@ cloud(s2, panel.3d.cloud = panel.3dbars, col="gray48",
       #perspective= 
       zoom=0.9 
       #,main="Method of moments mean error"
-) + layer(panel.text(x=-0.17, y=0.16,labels="LL", cex=2))
+) + layer(panel.text(x=-0.17, y=0.16,labels="QG", cex=2))
 
 dev.off()
 

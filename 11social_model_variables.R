@@ -208,7 +208,8 @@ class(re) <- "estUDm"
 HRO<-kerneloverlaphr(re, method = c("VI"), percent = 95)
 HRO<-HRO/10000
 
-VI<-mat2dat(HRO)
+VI<-mat2dat(HRO, "HRO")
+VI<-reduce_pairs(VI, "ID1", "ID2")
 
 #SRI
 
@@ -223,22 +224,45 @@ matnames<-list(as.character(dates),dolphins)
 dimnames(schedule)<-matnames
 
 schedule<-t(schedule*1)
+schedule[schedule==0]<-NA
 
-masked_SRI<-simple_ratio(sightings=all_surveys, group_variable = "observation_id", dates="observation_date.x", 
-                         IDs = "dolphin_id", mask=schedule)
+masked_SRI<-simple_ratio(sightings=all_surveys, group_variable = "observation_id", 
+                         dates="observation_date.x", IDs = "dolphin_id", 
+                         symmetric = FALSE,
+                         mask = schedule)
 
-SRI<-mat2dat(masked_SRI)
+SRI<-mat2dat(masked_SRI, "SRI")
 
 #Also need joint number of sightings for weight
 
-attributes<-merge_pairs(SRI, VI, "ID1", "ID2", all.x=TRUE, all.y=FALSE)
+attributes<-merge_pairs(VI, SRI, "ID1", "ID2", all.x=TRUE, all.y=FALSE)
+
+#get joint number of sightings with new function
+
+masked_sightings<-simple_ratio(sightings=all_surveys, group_variable = "observation_id", 
+                         dates="observation_date.x", IDs = "dolphin_id", 
+                         symmetric = FALSE,
+                         mask = schedule, 
+                         assocInd = "XY")
+
+sightings<-mat2dat(masked_sightings, "sightings")
 
 
+attributes<-merge_pairs(sightings, attributes, "ID1", "ID2", all.x=TRUE, all.y=FALSE)
 
+#add sex and age information
 
+attributes$by1<-lhl$birth_date[match(attributes$ID1, lhl$dolphin_id)]
+attributes$by2<-lhl$birth_date[match(attributes$ID2, lhl$dolphin_id)]
 
+attributes$sex1<-lhl$sex[match(attributes$ID1, lhl$dolphin_id)]
+attributes$sex2<-lhl$sex[match(attributes$ID2, lhl$dolphin_id)]
 
+attributes$agediff<-as.numeric(abs(attributes$by1-attributes$by2)/365.25)
+attributes$sexpair<-paste0(attributes$sex1, attributes$sex2)
+attributes$sexpair[which(attributes$sexpair=="MALEFEMALE")]<-"FEMALEMALE"
 
+write.csv(attributes, file="social_model_variabes.csv")
 
 
 

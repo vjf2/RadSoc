@@ -25,7 +25,7 @@ for (j in 1:nb) {
   names(dis)<-c("Ind1","Ind2","Pair","TrioEst","WEst","LLEst","LREst","REst","QGEst","MEst")
   dis<-dis[,-ncol(dis)]
   
-  names(res)[j]
+  # names(res)[j]
   
   nsnps<-strsplit(names(res)[j], "_")[[1]][1]
   nsnps<-substr(nsnps, 2, nchar(nsnps))

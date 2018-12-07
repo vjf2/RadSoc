@@ -124,7 +124,9 @@ script<-c(rbind(lf, runcmd))
 writeLines(script, "batch_coancestry.bat")
 
 xfiles<-list.files(pattern="RelatednessEstimates", recursive = TRUE)
-xfiles<-xfiles[grep("_", xfiles)]
+xfiles<-xfiles[grep("_1", xfiles)]
+
+#check and remove any other filenames
 
 res<-lapply(xfiles, function(x) read.table(x, sep=",", row.names = 1)) 
 names(res)<-xfiles

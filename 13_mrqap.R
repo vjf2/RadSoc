@@ -6,7 +6,7 @@ options(stringsAsFactors = FALSE)
 
 setwd("C:/Users/froug/Desktop/Real First Chapter")
 
-load("C:/ZSL/Coancestry/res_social.RData") #in coancestry folder
+load("C:/ZSL/Coancestry/res_social_females_ordered.RData") #in coancestry folder
 
 #read in social data
 
@@ -54,6 +54,8 @@ for (i in 1:length(res)) {
   
   df<-merge_pairs(df, smv, "ID1", "ID2", all.x=TRUE, all.y=FALSE)
   
+  df<-df[which(df$sexpair=="FEMALEFEMALE"),]
+  
   rel_est[[i]]<-df}
 
 #make matrices and run netlogitM
@@ -83,19 +85,19 @@ start<-Sys.time()
 
 for (i in 1:length(rel_est)){
   
-  cdata <- rel_est[[i]]
+  cdata <- rel_est[[i]] 
   
   SRIm <- matricize(cdata[, c("ID1", "ID2", "SRI")])
   relm <- matricize(cdata[, c("ID1", "ID2", "MEst")])
   HROm <- matricize(cdata[, c("ID1", "ID2", "HRO")])
   agem <- matricize(cdata[, c("ID1", "ID2", "agediff")])
-  sexmm <- matricize(cdata[, c("ID1", "ID2", "mm")])
-  sexff <- matricize(cdata[, c("ID1", "ID2", "ff")])
+  # sexmm <- matricize(cdata[, c("ID1", "ID2", "mm")])
+  # sexff <- matricize(cdata[, c("ID1", "ID2", "ff")])
   weightsm <- matricize(cdata[, c("ID1", "ID2", "sightings")])
   weights <- gvectorize(weightsm, mode = "graph", diag = FALSE)
  
   lqap[[i]]<-netlogitM(y=SRIm,
-                  x=list(relm, HROm, agem, sexmm, sexff),
+                  x=list(relm, HROm, agem), #remove sex
                   intercept = TRUE,
                   mode = "graph" ,
                   nullhyp = "qapspp" ,
@@ -105,36 +107,108 @@ for (i in 1:length(rel_est)){
                   reps = 1000,
                   weights=weights) 
   
-  llogmod[[i]]<-glm(cbind(together, (sightings-together))~MEst+HRO+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  
-  llogmodR[[i]]<-glm(cbind(together, (sightings-together))~HRO+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  
-  llogmodtar[[i]]<-glm(MEst~HRO+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  
-  #without HRO
-  
-  lqapH[[i]]<-netlogitM(y=SRIm,
-                 x=list(relm, agem, sexmm, sexff),
-                 intercept = TRUE,
-                 mode = "graph" ,
-                 nullhyp = "qapspp" ,
-                 diag = FALSE ,
-                 test.statistic = "z-value" ,
-                 tol = 1e-07 ,
-                 reps = 1000,
-                 weights=weights) 
-  
-  llogmodH[[i]]<-glm(cbind(together, (sightings-together))~MEst+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  
-  llogmodRH[[i]]<-glm(cbind(together, (sightings-together))~agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  
-  llogmodtarH[[i]]<-glm(MEst~agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  
-  save.image(file=paste0("all_model_results",i,".RData"))
+  # llogmod[[i]]<-glm(cbind(together, (sightings-together))~MEst+HRO+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
+  # 
+  # llogmodR[[i]]<-glm(cbind(together, (sightings-together))~HRO+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
+  # 
+  # llogmodtar[[i]]<-glm(MEst~HRO+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
+  # 
+  # #without HRO
+  # 
+  # lqapH[[i]]<-netlogitM(y=SRIm,
+  #                x=list(relm, agem, sexmm, sexff),
+  #                intercept = TRUE,
+  #                mode = "graph" ,
+  #                nullhyp = "qapspp" ,
+  #                diag = FALSE ,
+  #                test.statistic = "z-value" ,
+  #                tol = 1e-07 ,
+  #                reps = 1000,
+  #                weights=weights) 
+  # 
+  # llogmodH[[i]]<-glm(cbind(together, (sightings-together))~MEst+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
+  # 
+  # llogmodRH[[i]]<-glm(cbind(together, (sightings-together))~agediff+mm+ff, data=cdata, family = binomial(link="logit"))
+  # 
+  # llogmodtarH[[i]]<-glm(MEst~agediff+mm+ff, data=cdata, family = binomial(link="logit"))
+  # 
+  save.image(file=paste0("all_female_model_results",i,".RData"))
   print(i)
 }
 
 end<-Sys.time()
+
+#6 hours total
+
+#make results table 
+
+restable<-lapply(names(res), function(x) {
+            nsnps<-strsplit(x, "_")[[1]][1]
+            nsnps<-as.numeric(gsub("\\D", "", nsnps))
+            nind<-strsplit(x, "_")[[1]][2]
+            return(c(nind, nsnps))
+          })
+          
+restable<-do.call("rbind", restable)
+restable<-as.data.frame(apply(restable,2,as.numeric))
+
+names(restable)<-c("nind", "nsnps")
+restable[nrow(restable),1]<-92
+
+restable$pvalue<-sapply(lqap, function(x) x$pgreqabs[2]) 
+restable$coeff<-sapply(lqap, function(x) coef(x)[2])
+
+windows();plot(restable$nind, restable$pvalue, type="n")
+text(restable$nind, restable$pvalue, labels=restable$nsnps)
+abline(h=0.05, col="red", lty=2)
+
+windows();plot(restable$nind, restable$coef, type="n")
+text(restable$nind, restable$coef, labels=restable$nsnps)
+abline(h=coef(lqap[[56]])[2], col="red", lty=2)
+abline(h=coef(lqap[[56]])[2]+lqap[[56]]$se[1], col="grey", lty=2)
+abline(h=coef(lqap[[56]])[2]-lqap[[56]]$se[1], col="grey", lty=2)
+
+#missing 80 x 4235
+
+library(rsq)
+
+rsqpartial<-list()
+
+for (i in 1:length(rel_est)){
+  
+  cdata <- rel_est[[i]]
+
+  rsqmod<-glm(SRI~MEst+HRO+agediff+mm+ff, 
+                   weights = cdata$sightings, 
+                   data=cdata, 
+                   family = binomial(link="logit"))
+  
+  rsqs<-rsq.partial(rsqmod)
+  
+  rsqpartial[[i]]<-rsqs$partial.rsq[1]
+  
+  }
+
+restable$rsqrel<-unlist(rsqpartial)
+
+windows();plot(restable$nind, restable$rsqrel, type="n")
+text(restable$nind, restable$rsqrel, labels=restable$nsnps)
+abline(h=restable$rsqrel[nrow(restable)], col="red", lty=2)
+
+#sample size, allele frequency, number of markers
+
+#add order that samples were obtained?
+
+#use best estimates to determine sample size
+#change allele freq to determine accuracy
+#get snp code to make nicer graph
+
+
+
+
+
+
+
 
 
 

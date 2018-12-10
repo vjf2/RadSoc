@@ -8,20 +8,31 @@ options(stringsAsFactors = FALSE)
 
 dolphins<-read.table("focal_dolphins.txt")[[1]]
 
+#add sexes
+
+ID_key<-read.csv("RawData/dolphin_sample_key.csv")
+
+ID_key$samplingdate<-as.Date(ID_key$samplingdate, format="%m/%d/%Y")
+ID_key<-ID_key[order(ID_key$samplingdate),]
+
+females<-ID_key$Dolphin_ID[which(ID_key$Sex=="FEMALE")][which(ID_key$Dolphin_ID[which(ID_key$Sex=="FEMALE")] %in% dolphins)]
+
+males<-ID_key$Dolphin_ID[which(ID_key$Sex=="MALE")][which(ID_key$Dolphin_ID[which(ID_key$Sex=="MALE")] %in% dolphins)]
+
 full_co<-read.table("C:/ZSL/Coancestry/emp4235/GenotypeData.txt", row.names = 1, sep="")
 
-nmax<-length(dolphins)
+nmax<-length(females) #or dolphins
 nsnps<-ncol(full_co)/2
 
 colIDs<-rep(seq(1,nsnps,1),each=2)
 
 snpset<-c(50,100,200,400,800,1600,3200,nsnps)
-nind<-c(10,20,30,40,50,100,150, nmax)
+nind<-c(20, 30, 40, 50, 60, 70, 80)
 
 combns<-expand.grid(snpset, nind)
 names(combns)<-c("nsnps", "nind")
 
-combns<-combns[-nrow(combns),]
+#combns<-combns[-nrow(combns),]
 
 #freqs<-read.table("FrequencyData.txt")
 #one line for alleles (4, 2)
@@ -53,7 +64,7 @@ for (i in 1:nrow(combns)) {
     snp<-combns[i,1]
     samp<-combns[i,2]
     
-    newf<-paste0("s", snp, "_", samp, "_", j)
+    newf<-paste0("social", snp, "_", samp, "_", j)
     
     newpath<-paste0(pathpre, newf, pathsuf)
     
@@ -75,7 +86,7 @@ for (i in 1:nrow(combns)) {
     
     #generate genotype file
     
-    new_subjects<-sample(dolphins, samp) #change to dolphins
+    new_subjects<-c(females[1:samp], males[1:samp]) #changed to dolphins
     
     new_snps<-sample(1:nsnps, snp)
     
@@ -112,9 +123,7 @@ for (i in 1:nrow(combns)) {
 setwd("C:/ZSL/Coancestry/")
 
 lf<-list.files()
-lf<-lf[grep("s[[:digit:]]", lf)]
-
-write.csv(lf, "lf.csv")
+lf<-lf[grep("social[[:digit:]]", lf)]
 
 lf<-paste0("cd C:\\ZSL\\Coancestry\\", lf)
 runcmd<-rep("..\\trior10", length(lf))
@@ -124,11 +133,11 @@ script<-c(rbind(lf, runcmd))
 writeLines(script, "batch_coancestry.bat")
 
 xfiles<-list.files(pattern="RelatednessEstimates", recursive = TRUE)
-xfiles<-xfiles[grep("_1", xfiles)]
+xfiles<-xfiles[grep("social", xfiles)]
 
 #check and remove any other filenames
 
 res<-lapply(xfiles, function(x) read.table(x, sep=",", row.names = 1)) 
 names(res)<-xfiles
 
-save(res, file="res_social.RData")
+save(res, file="res_social_females_ordered.RData")

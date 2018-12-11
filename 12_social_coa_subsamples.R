@@ -1,5 +1,15 @@
 #12 subsamples for social model
 
+arg1 <- commandArgs(trailingOnly = TRUE)
+
+arg1<-as.numeric(arg1)
+print(arg1)
+print(class(arg1))
+
+.libPaths("C:/Users/froug/OneDrive/Documents/R/win-library/3.5")
+
+setwd("C:/Users/froug/Desktop/Real First Chapter")
+
 library(SocGen)
 
 options(stringsAsFactors = FALSE)
@@ -15,9 +25,15 @@ ID_key<-read.csv("RawData/dolphin_sample_key.csv")
 ID_key$samplingdate<-as.Date(ID_key$samplingdate, format="%m/%d/%Y")
 ID_key<-ID_key[order(ID_key$samplingdate),]
 
-females<-ID_key$Dolphin_ID[which(ID_key$Sex=="FEMALE")][which(ID_key$Dolphin_ID[which(ID_key$Sex=="FEMALE")] %in% dolphins)]
+females<-unique(ID_key$Dolphin_ID[which(ID_key$Sex=="FEMALE")][which(ID_key$Dolphin_ID[which(ID_key$Sex=="FEMALE")] %in% dolphins)])
 
-males<-ID_key$Dolphin_ID[which(ID_key$Sex=="MALE")][which(ID_key$Dolphin_ID[which(ID_key$Sex=="MALE")] %in% dolphins)]
+males<-unique(ID_key$Dolphin_ID[which(ID_key$Sex=="MALE")][which(ID_key$Dolphin_ID[which(ID_key$Sex=="MALE")] %in% dolphins)])
+
+#scramble
+set.seed(arg1)
+females<-sample(females)
+males<-sample(males)
+
 
 full_co<-read.table("C:/ZSL/Coancestry/emp4235/GenotypeData.txt", row.names = 1, sep="")
 
@@ -57,7 +73,7 @@ iter<-1
 
 for (i in 1:nrow(combns)) {
   
-  j<-1
+  j<-arg1
   
   replicate(iter, {
     
@@ -131,13 +147,3 @@ runcmd<-rep("..\\trior10", length(lf))
 script<-c(rbind(lf, runcmd))
 
 writeLines(script, "batch_coancestry.bat")
-
-xfiles<-list.files(pattern="RelatednessEstimates", recursive = TRUE)
-xfiles<-xfiles[grep("social", xfiles)]
-
-#check and remove any other filenames
-
-res<-lapply(xfiles, function(x) read.table(x, sep=",", row.names = 1)) 
-names(res)<-xfiles
-
-save(res, file="res_social_females_ordered.RData")

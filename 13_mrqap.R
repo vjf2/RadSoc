@@ -1,12 +1,28 @@
 #13 use res_social.Data in MRQAP models
 
+arg1<-commandArgs(trailingOnly = TRUE)
+arg1<-as.numeric(arg1)
+
+.libPaths("C:/Users/froug/OneDrive/Documents/R/win-library/3.5")
+
 library(SocGen)
+library(rsq)
 
 options(stringsAsFactors = FALSE)
 
+xfiles<-list.files(path="C:/ZSL/Coancestry", pattern="RelatednessEstimates", recursive = TRUE, full.names = TRUE)
+xfiles<-xfiles[grep("social", xfiles)]
+xfiles<-xfiles[grep(paste0("_", arg1, "/"), xfiles, fixed=TRUE)]
+
+# #check and remove any other filenames
+
+res<-lapply(xfiles, function(x) read.table(x, sep=",", row.names = 1))
+names(res)<-xfiles
+
+# save(res, file="res_social_females_ordered.RData")
 setwd("C:/Users/froug/Desktop/Real First Chapter")
 
-load("C:/ZSL/Coancestry/res_social_females_ordered.RData") #in coancestry folder
+# load("C:/ZSL/Coancestry/res_social_females_ordered.RData") #in coancestry folder
 
 #read in social data
 
@@ -24,10 +40,6 @@ smv$ff<-ifelse(smv$sexpair=="FEMALEFEMALE", 1, 0)
 #add names to res
 
 names(res) <- gsub(pattern = "/RelatednessEstimates.Txt", "", names(res))
-
-#remove nind = 10
-
-res<-res[grep("_10_1", x = names(res), invert = TRUE)]
 
 #add fulldata to res
 
@@ -73,17 +85,28 @@ matricize<-function(x){
 source("Code/14netlogitM.R")
 
 lqap <- list()
-lqapH <- list()
-llogmod <- list()
-llogmodH <- list()
-llogmodR <- list()
-llogmodRH <- list()
-llogmodtar <- list()
-llogmodtarH <- list()
+rsqpartial<-list()
+proprel<-list()
+
+set.seed(1)
+
+
+library(foreach)
+library(doParallel)
 
 start<-Sys.time()
 
-for (i in 1:length(rel_est)){
+cl<-makeCluster(detectCores()-1, outfile="keep_track.txt")
+clusterEvalQ(cl, library(sna))
+clusterEvalQ(cl, library(rsq))
+clusterExport(cl, c("rel_est", "matricize", "netlogitM", "lqap", "rsqpartial", "proprel"))
+registerDoParallel(cl)
+
+#think about nested list structure
+
+# for (i in 1:length(rel_est)){
+  
+lqap<-foreach (i=1:length(rel_est), .errorhandling='pass') %dopar% {
   
   cdata <- rel_est[[i]] 
   
@@ -96,7 +119,7 @@ for (i in 1:length(rel_est)){
   weightsm <- matricize(cdata[, c("ID1", "ID2", "sightings")])
   weights <- gvectorize(weightsm, mode = "graph", diag = FALSE)
  
-  lqap[[i]]<-netlogitM(y=SRIm,
+  lqap<-netlogitM(y=SRIm,
                   x=list(relm, HROm, agem), #remove sex
                   intercept = TRUE,
                   mode = "graph" ,
@@ -107,38 +130,31 @@ for (i in 1:length(rel_est)){
                   reps = 1000,
                   weights=weights) 
   
-  # llogmod[[i]]<-glm(cbind(together, (sightings-together))~MEst+HRO+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  # 
-  # llogmodR[[i]]<-glm(cbind(together, (sightings-together))~HRO+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  # 
-  # llogmodtar[[i]]<-glm(MEst~HRO+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  # 
-  # #without HRO
-  # 
-  # lqapH[[i]]<-netlogitM(y=SRIm,
-  #                x=list(relm, agem, sexmm, sexff),
-  #                intercept = TRUE,
-  #                mode = "graph" ,
-  #                nullhyp = "qapspp" ,
-  #                diag = FALSE ,
-  #                test.statistic = "z-value" ,
-  #                tol = 1e-07 ,
-  #                reps = 1000,
-  #                weights=weights) 
-  # 
-  # llogmodH[[i]]<-glm(cbind(together, (sightings-together))~MEst+agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  # 
-  # llogmodRH[[i]]<-glm(cbind(together, (sightings-together))~agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  # 
-  # llogmodtarH[[i]]<-glm(MEst~agediff+mm+ff, data=cdata, family = binomial(link="logit"))
-  # 
-  save.image(file=paste0("all_female_model_results",i,".RData"))
-  print(i)
-}
+  rsqmod<-glm(SRI~MEst+HRO+agediff,
+              weights = cdata$sightings,
+              data=cdata,
+              family = binomial(link="logit"))
+   
+  rsqs<-rsq.partial(rsqmod)
+   
+  rsqpartial<-rsqs$partial.rsq[1]
+   
+  proprel<-sum(cdata$MEst>0.0362)/length(cdata$MEst)
+
+  
+  cat(paste0("network regression complete for number ", i, "\n"))
+  
+  return(list(lqap, rsqpartial, proprel))
+  
+} 
+
+stopCluster(cl)
 
 end<-Sys.time()
 
-#6 hours total
+end-start
+
+# save.image(file=paste0("all_female_model_results_seed",3,".RData"))
 
 #make results table 
 
@@ -155,62 +171,18 @@ restable<-as.data.frame(apply(restable,2,as.numeric))
 names(restable)<-c("nind", "nsnps")
 restable[nrow(restable),1]<-92
 
+lqap<-lapply(lqap, "[[", 1)
+
 restable$pvalue<-sapply(lqap, function(x) x$pgreqabs[2]) 
 restable$coeff<-sapply(lqap, function(x) coef(x)[2])
 
-windows();plot(restable$nind, restable$pvalue, type="n")
-text(restable$nind, restable$pvalue, labels=restable$nsnps)
-abline(h=0.05, col="red", lty=2)
-
-windows();plot(restable$nind, restable$coef, type="n")
-text(restable$nind, restable$coef, labels=restable$nsnps)
-abline(h=coef(lqap[[56]])[2], col="red", lty=2)
-abline(h=coef(lqap[[56]])[2]+lqap[[56]]$se[1], col="grey", lty=2)
-abline(h=coef(lqap[[56]])[2]-lqap[[56]]$se[1], col="grey", lty=2)
-
-#missing 80 x 4235
-
-library(rsq)
-
-rsqpartial<-list()
-
-for (i in 1:length(rel_est)){
-  
-  cdata <- rel_est[[i]]
-
-  rsqmod<-glm(SRI~MEst+HRO+agediff+mm+ff, 
-                   weights = cdata$sightings, 
-                   data=cdata, 
-                   family = binomial(link="logit"))
-  
-  rsqs<-rsq.partial(rsqmod)
-  
-  rsqpartial[[i]]<-rsqs$partial.rsq[1]
-  
-  }
+rsqpartial<-lapply(lqap, "[[", 2)
+proprel<-lapply(lqap, "[[",3)
 
 restable$rsqrel<-unlist(rsqpartial)
-
-windows();plot(restable$nind, restable$rsqrel, type="n")
-text(restable$nind, restable$rsqrel, labels=restable$nsnps)
-abline(h=restable$rsqrel[nrow(restable)], col="red", lty=2)
-
-#sample size, allele frequency, number of markers
-
-#add order that samples were obtained?
-
-#use best estimates to determine sample size
-#change allele freq to determine accuracy
-#get snp code to make nicer graph
+restable$proprel<-unlist(proprel)
 
 
-
-
-
-
-
-
-
-
+write.csv(restable, file=paste0(restable, arg1, ".csv"))
 
 

@@ -94,4 +94,4 @@ ref<-rbind(ref[,1:4], repar)
 
 ref<-reduce_pairs(ref, "ID1", "ID2")
 
-#reduce pairs at end
+write.csv(ref, "known_kin.csv", row.names = FALSE)

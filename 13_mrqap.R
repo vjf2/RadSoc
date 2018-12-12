@@ -106,7 +106,7 @@ registerDoParallel(cl)
 
 # for (i in 1:length(rel_est)){
   
-lqap<-foreach (i=1:length(rel_est), .errorhandling='pass') %dopar% {
+models<-foreach (i=1:length(rel_est), .errorhandling='pass') %dopar% {
   
   cdata <- rel_est[[i]] 
   
@@ -171,18 +171,18 @@ restable<-as.data.frame(apply(restable,2,as.numeric))
 names(restable)<-c("nind", "nsnps")
 restable[nrow(restable),1]<-92
 
-lqap<-lapply(lqap, "[[", 1)
+lqap<-lapply(models, "[[", 1)
 
 restable$pvalue<-sapply(lqap, function(x) x$pgreqabs[2]) 
 restable$coeff<-sapply(lqap, function(x) coef(x)[2])
 
-rsqpartial<-lapply(lqap, "[[", 2)
-proprel<-lapply(lqap, "[[",3)
+rsqpartial<-lapply(models, "[[", 2)
+proprel<-lapply(models, "[[",3)
 
 restable$rsqrel<-unlist(rsqpartial)
 restable$proprel<-unlist(proprel)
 
 
-write.csv(restable, file=paste0(restable, arg1, ".csv"))
+write.csv(restable, file=paste0("restable", arg1, ".csv"))
 
 

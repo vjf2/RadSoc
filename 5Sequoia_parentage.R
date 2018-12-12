@@ -1,5 +1,7 @@
 #Parentage assignment with sequoia
 
+setwd("C:/Users/froug/Desktop/Real First Chapter")
+
 options(stringsAsFactors = FALSE)
 
 library(sequoia)

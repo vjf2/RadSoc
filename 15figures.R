@@ -1,68 +1,94 @@
 #Figures
 
-
-windows();plot(restable$nind, restable$pvalue, type="n")
-text(restable$nind, restable$pvalue, labels=restable$nsnps)
-abline(h=0.05, col="red", lty=2)
-
-windows();plot(restable$nind, restable$coef, type="n")
-text(restable$nind, restable$coef, labels=restable$nsnps)
-abline(h=coef(lqap[[57]])[2], col="red", lty=2)
-abline(h=coef(lqap[[57]])[2]+lqap[[56]]$se[1], col="grey", lty=2)
-abline(h=coef(lqap[[57]])[2]-lqap[[56]]$se[1], col="grey", lty=2)
-
-
-windows();plot(restable$nind, restable$rsqrel, type="n")
-text(restable$nind, restable$rsqrel, labels=restable$nsnps)
-abline(h=restable$rsqrel[nrow(restable)], col="red", lty=2)
-
-#sample size, allele frequency, number of markers
-
-#add order that samples were obtained?
-
-#use best estimates to determine sample size
-#change allele freq to determine accuracy
-#get snp code to make nicer graph
-
-
 library(colorspace)
 xc<-rainbow_hcl(8)
 
-windows();plot(restable$nind, restable$rsqrel, type="n", ylim=c(0,0.6))
+options(stringsAsFactors = FALSE)
 
-points(rsqrel~nind, data=restable[restable$nsnps==50,], col=xc[1], pch=1)
-points(rsqrel~nind, data=restable[restable$nsnps==100,], col=xc[2], pch=2)
-points(rsqrel~nind, data=restable[restable$nsnps==200,], col=xc[3], pch=3)
-points(rsqrel~nind, data=restable[restable$nsnps==400,], col=xc[4], pch=4)
-points(rsqrel~nind, data=restable[restable$nsnps==800,], col=xc[5], pch=5)
-points(rsqrel~nind, data=restable[restable$nsnps==1600,], col=xc[6], pch=6)
-points(rsqrel~nind, data=restable[restable$nsnps==3200,], col=xc[7], pch=7)
-points(rsqrel~nind, data=restable[restable$nsnps==4235,], col=xc[8], pch=8)
+load("Z:/RadSoc/restables.RData")
 
-lines(rsqrel~nind, data=restable[restable$nsnps==50,], col=xc[1], pch=1)
-lines(rsqrel~nind, data=restable[restable$nsnps==100,], col=xc[2], pch=2)
-lines(rsqrel~nind, data=restable[restable$nsnps==200,], col=xc[3], pch=3)
-lines(rsqrel~nind, data=restable[restable$nsnps==400,], col=xc[4], pch=4)
-lines(rsqrel~nind, data=restable[restable$nsnps==800,], col=xc[5], pch=5)
-lines(rsqrel~nind, data=restable[restable$nsnps==1600,], col=xc[6], pch=6)
-lines(rsqrel~nind, data=restable[restable$nsnps==3200,], col=xc[7], pch=7)
-lines(rsqrel~nind, data=restable[restable$nsnps==4235,], col=xc[8], pch=8)
+j<-1
+q<-lapply(q, function(x) {x$iter<-j; x<-x[-nrow(x),];j<<-j+1;return(x)})
+
+qdf<-do.call("rbind", q)
+
+qdf<-qdf[order(qdf$nind),]
+
+p<-aggregate(pvalue~nind+nsnps, data=qdf, function(x) {sum(x>=0.05)/length(x)})
+
+p<-p[order(p$nind),]
+
+max(p$pvalue)
+
+windows()
+
+# pdf(file="Figures/model_res.pdf", width=14, height=6)
+par(mar=c(5, 4.1, 1, 1))
+boxplot(rsqrel~nsnps+nind,  
+        col=adjustcolor(xc, alpha.f=0.5)[c(2:8,1)], 
+        at=c(1:8, 10:17, 19:26, 28:35, 37:44, 46:53, 55:62),
+        data=qdf,
+        xaxt="n",
+        yaxt="n",
+        ylab="Coefficient of Partial Determination - Relatedness",
+        xlab="Number of Individuals",
+        ylim=c(0,0.7), 
+        type="n") 
+
+axis(2, las=1)
+axis(1, at=seq(4,62,9), labels=unique(qdf$nind))
+
+legend(55,0.70, legend=sort(unique(qdf$nsnps)), col=xc[c(2:8,1)], pch=15,
+       title="Number of SNPs", y.intersp = 0.9, bty="n")
+
+pvalueprop<-c(p$pvalue[1:8], NA,
+              p$pvalue[9:16], NA, 
+              p$pvalue[17:24], NA,  
+              p$pvalue[25:32], NA,  
+              p$pvalue[33:40], NA,  
+              p$pvalue[41:48], NA,  
+              p$pvalue[49:56])
+
+points(c(1:8, 10:17, 19:26, 28:35, 37:44, 46:53, 55:62), p$pvalue, col="red")
+lines(1:62,pvalueprop, col="red")
+
+abline(h=0.1287912, col="black", lty=2)
+
+boxplot(rsqrel~nsnps+nind,  
+        # col=adjustcolor(xc, alpha.f=0.7)[c(2:8,1)], 
+        at=c(1:8, 10:17, 19:26, 28:35, 37:44, 46:53, 55:62),
+        data=qdf,
+        xaxt="n",
+        yaxt="n",
+        add=TRUE) 
+
+legend(52.3,0.40, pch=1, col="red", lty=1, legend="False negative rate", bty="n")
+
+dev.off()
 
 
-legend("topright", legend=sort(unique(restable$nsnps)), col=xc, pch=1:8, lwd=1,
-       title="Number of SNPs", y.intersp = 0.9)
+#False Discovery Rate
+windows()
 
-abline(h=restable$rsqrel[nrow(restable)], lty=2)
+par(mar=c(5, 4.1, 1, 1))
+boxplot(proprel~nsnps+nind,  
+        col=adjustcolor(xc, alpha.f=0.5)[c(2:8,1)], 
+        at=c(1:8, 10:17, 19:26, 28:35, 37:44, 46:53, 55:62),
+        data=qdf,
+        xaxt="n",
+        yaxt="n",
+        ylab="Coefficient of Partial Determination - Relatedness",
+        xlab="Number of Individuals",
+        ylim=c(0,0.7), 
+        type="n") 
+
+axis(2, las=1)
+axis(1, at=seq(4,62,9), labels=unique(qdf$nind))
+
+legend(55,0.70, legend=sort(unique(qdf$nsnps)), col=xc[c(2:8,1)], pch=15,
+       title="Number of SNPs", y.intersp = 0.9, bty="n")
 
 
 
-text(restable$nind, restable$proprel, labels=restable$nsnps)
 
 
-pdata<-restable[,c(1,2,5)]
-
-pdata<-reshape2::acast(pdata, nsnps~nind)
-
-windows();barplot(pdata, beside=TRUE, col=xc)
-
-windows();boxplot(pdata, beside=TRUE, col=xc) #organize for multiple

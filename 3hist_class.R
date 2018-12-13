@@ -10,9 +10,9 @@ v5<-rels #or rels for simulation
 v5$IBD<-v5[,estimator]
 # v5$expected<-v5$biparental
 
-catcol<-rainbow_hcl(12, alpha=0.5)[c(1,5,8,10,12)]
-borcol<-rainbow_hcl(12, alpha=0.9)[c(1,5,8,10,12)]
-lcol<-rainbow_hcl(12)[c(1,5,8,10,12)]
+catcol<-rainbow_hcl(12, alpha=0.5)[c(1,3,5,8,10)]
+borcol<-rainbow_hcl(12, alpha=0.9)[c(1,3,5,8,10)]
+lcol<-rainbow_hcl(12)[c(1,3,5,8,10)]
 
 breks<-seq(min(v5$IBD), 0.6, 0.01)
 
@@ -21,6 +21,7 @@ breks<-seq(min(v5$IBD), 0.6, 0.01)
 
 windows()
 # pdf(file="rcthresholds.pdf")
+par(mar=c(5,4.1,0,0))
 {hist(v5$IBD[which(v5$expected==0)], probability = FALSE, 
       col=catcol[1],
       yaxt="n",
@@ -31,11 +32,11 @@ windows()
       border=borcol[1], 
       breaks=breks)
   hist(v5$IBD[which(v5$expected==0.25)], probability = FALSE, 
-       col=catcol[3], add=TRUE, border=borcol[3], breaks=breks)
-  hist(v5$IBD[which(v5$expected==0.5 & v5$RelCat=="PO")], probability = FALSE, 
        col=catcol[4], add=TRUE, border=borcol[4], breaks=breks)
-  hist(v5$IBD[which(v5$expected==0.125)], probability = FALSE, 
+  hist(v5$IBD[which(v5$expected==0.5 & v5$RelCat=="PO")], probability = FALSE, 
        col=catcol[5], add=TRUE, border=borcol[5], breaks=breks)
+  hist(v5$IBD[which(v5$expected==0.125)], probability = FALSE, 
+       col=catcol[3], add=TRUE, border=borcol[3], breaks=breks)
   hist(v5$IBD[which(v5$expected==0.0625)], probability = FALSE, 
        col=catcol[2], add=TRUE, border=borcol[2], breaks=breks)
   axis(2, las=1)
@@ -54,9 +55,9 @@ z1<-density(z, adjust=0.8)
 a1<-density(a, adjust=0.8)
 
 lines(w1$x, w1$y, lwd=2, col=lcol[1])
-lines(x1$x, x1$y, lwd=2, col=lcol[4])
-lines(y1$x, y1$y, lwd=2, col=lcol[3])
-lines(z1$x, z1$y, lwd=2, col=lcol[5])
+lines(x1$x, x1$y, lwd=2, col=lcol[5])
+lines(y1$x, y1$y, lwd=2, col=lcol[4])
+lines(z1$x, z1$y, lwd=2, col=lcol[3])
 lines(a1$x, a1$y, lwd=2, col=lcol[2])
 
 lines(w1$x, w1$y, lty=2)

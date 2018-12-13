@@ -7,6 +7,8 @@ options(stringsAsFactors = FALSE)
 
 library(colorspace)
 
+ref<-read.csv("known_kin.csv")
+
 v5<-ref #or rels for simulation
 v5$IBD<-v5$relatedness.x
 v5$expected<-v5$biparental
@@ -23,6 +25,7 @@ breks<-seq(min(v5$IBD), 0.6, 0.01)
 
 windows()
 # pdf(file="rcthresholds.pdf")
+par(mar=c(5,4.1,0,0))
 {hist(v5$IBD[which(v5$expected==0)], probability = TRUE, 
       col=catcol[1],
       yaxt="n",
@@ -58,7 +61,7 @@ z1<-density(z, adjust=0.5)
 lines(w1$x, w1$y, lwd=2, col=lcol[1])
 lines(x1$x, x1$y, lwd=2, col=lcol[4])
 lines(y1$x, y1$y, lwd=2, col=lcol[3])
-lines(z1$x, z1$y, lwd=2, col=lcol[5])
+lines(z1$x, z1$y, lwd=2, col=lcol[2])
 # lines(a1$x, a1$y, lwd=2, col=lcol[2])
 
 lines(w1$x, w1$y, lty=2)

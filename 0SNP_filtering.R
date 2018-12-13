@@ -28,6 +28,9 @@ single_raw<-alleleunion[,c(1:22, ncol(alleleunion):(ncol(alleleunion)-3),23:(nco
 
 dolphins_to_include<-ID_key$Dolphin_ID[which(ID_key$me_paper=="yes" | ID_key$me_paper=="yes_v2")]
 
+#remove FCH on rerun since doesn't contribute to ped without ATC
+
+
 #need to match back to retain duplicates
 
 samples_to_include<-ID_key$Sample_ID[which(ID_key$Dolphin_ID %in% dolphins_to_include)]

@@ -32,7 +32,7 @@ boxplot(rsqrel~nsnps+nind,
         yaxt="n",
         ylab="Coefficient of Partial Determination - Relatedness",
         xlab="Number of Individuals",
-        ylim=c(0,0.7), 
+        ylim=c(0,0.73), 
         type="n") 
 
 axis(2, las=1)

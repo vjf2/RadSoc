@@ -114,29 +114,34 @@ co$width<-co$Var2-co$Var1
 
 # rect(xleft = 0.0362, ybottom = 0 , xright = 0.0935, ytop = 60 , col = adjustcolor("darkgrey", alpha=0.9), border=NA)
 # 
-# rect(xleft = 0.0901, ybottom = 0 , xright = 0.0976, ytop = 60 , col = adjustcolor("darkgrey", alpha=0.9), border=NA)
+# rect(xleft = 0.0901, ybottom = 0 , xright = 0.0976, ytop = 80 , col = adjustcolor("darkgrey", alpha=0.9), border=NA)
 
-text(x = 0.021, y=40, "100%", cex=0.8)
-text(x = 0.13, y=40, "80%", cex=0.8)
-text(x = 0.25, y=40, "98%", cex=0.8)
-text(x = 0.45, y=40, "100%", cex=0.8)
+tcex=1
 
-text(x = 0.021, y=37, "0%", col="red", cex=0.8) #false positive
-text(x = 0.13, y=37, "5%", col="red", cex=0.8) #false positive
-text(x = 0.25, y=37, "2%", col="red", cex=0.8) #false positive
-text(x = 0.45, y=37, "0%", col="red", cex=0.8) #false positive
+text(x = 0.021, y=40, "100%", cex=1)
+text(x = 0.13, y=40, "80%", cex=1)
+text(x = 0.25, y=40, "98%", cex=1)
+text(x = 0.45, y=40, "100%", cex=1)
 
-title(main="Real Data")
+text(x = 0.021, y=37, "0%", col="red", cex=1) #false positive
+text(x = 0.13, y=37, "5%", col="red", cex=1) #false positive
+text(x = 0.25, y=37, "2%", col="red", cex=1) #false positive
+text(x = 0.45, y=37, "0%", col="red", cex=1) #false positive
+
+# title(main="Real Data")
 
 b1<-0.0362
 b2<-0.0935
 b3<-(max(v5$IBD[which(v5$expected==0.125)])+min(v5$IBD[which(v5$expected==0.25)]))/2
 b4<-(max(v5$IBD[which(v5$expected==0.25)])+min(v5$IBD[which(v5$expected==0.5)]))/2
 
-segments(x0=b1, y0=0, x1=b1, y1=60, lty=3)
-segments(x0=b2, y0=0, x1=b2, y1=60, lty=3)
-segments(x0=b3, y0=0, x1=b3, y1=60, lty=3)
-segments(x0=b4, y0=0, x1=b4, y1=60, lty=3)
+segments(x0=b1, y0=0, x1=b1, y1=80, lty=3)
+segments(x0=b2, y0=0, x1=b2, y1=80, lty=3)
+segments(x0=b3, y0=0, x1=b3, y1=80, lty=3)
+segments(x0=b4, y0=0, x1=b4, y1=80, lty=3)
+
+rect(xleft = b1, ybottom = 0 , xright = b2, ytop = 80 , col = adjustcolor("darkgrey", alpha=0.9), border=NA)
+
 
 #what if we used categories from simulated data? 
 

@@ -128,6 +128,9 @@ for (i in 1:length(res)) {
   
   df<-merge_pairs(known_kin, df, "ID1", "ID2", all.x=TRUE, all.y=FALSE)
   
+  df<-df[which(df$biparental %in% c(0, 0.125, 0.25, 0.5)),]
+  
+  
   ped_est[[i]]<-df}
 
 #Classify false positives and false negatives
@@ -139,10 +142,11 @@ b3<-0.175
 b4<-0.4
 
 cats<-matrix(c(0, b1, 0, 
-               b1, b2, 0.0625,
+               # b1, b2, 0.0625,
                b2, b3, 0.125,
                b3, b4, 0.25,
-               b4, 1, 0.5), byrow = TRUE, nrow=5)
+               b4, 1, 0.5), byrow = TRUE, 
+                nrow=4)
 
 #100 snps
 

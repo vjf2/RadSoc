@@ -2,26 +2,48 @@
 
 options(stringsAsFactors = FALSE)
 
+setwd("C:/Users/froug/Desktop/Real First Chapter")
+
 library(colorspace)
 catcol<-rainbow_hcl(12, alpha=0.5)[c(1,5,8,10,12)]
-errcol<-"black"
+errcol<-"gray30"
 allcol<-c(rbind(catcol, errcol))
+borcol<-"darkgrey"
 
 kin_class<-read.csv("kin_classifications.csv", row.names=1)
 
+snps<-sort(unique(kin_class$nsnps))
 
-cclass<-kin_class[kin_class$nsnps==800,]
-
+plotpos<-function(i, b=-1){
+cclass<-kin_class[kin_class$nsnps==snps[i],]
 barplot(rbind(cclass$tp_prop,-cclass$fp_prop), beside=TRUE, col=allcol,
-        ylab="", ylim=c(-1,1), yaxt="n", xaxt="n", space=c(0,0))
-text(1,-0.8, cclass$nsnps[1], cex=1.3)
+        ylab="", ylim=c(b,1), yaxt="n", xaxt="n", space=c(0,0))
+text(1,-0.2, cclass$nsnps[1], cex=1.3)
 abline(h=0.95, lty=3)
 abline(h=0.80, lty=2)
+}
 
 
+windows()
+#pdf(file="Figures/classification_rates.pdf")
+par(mfrow=c(2,4), mar=c(0,0,1,0), oma=c(4,6,1,1), xpd=TRUE)
 
+plotpos(1)
+axis(2, at=c(-1, -0.5, 0, 0.5, 1), labels=c(1, 0.5, 0, 0.5, 1),las=1)
+mtext("Classification Rate", 2, line=4, adj=-0.5, cex=1.1)
+plotpos(2)
+plotpos(3)
+plotpos(4)
+plotpos(5,-0.5)
+axis(2, at=c(-1, -0.5, 0, 0.5, 1), labels=c(1, 0.5, 0, 0.5, 1),las=1)
 
+plotpos(6, -0.5)
 
+plotpos(7, -0.5)
+plotpos(8, -0.5)
+legend(x=-17, y=-0.4, legend=c("0", "0.125", "0.25", "0.5"), pch=22, cex=1.5 ,pt.cex=3, title="Pedigree Relatedness", col=borcol, pt.bg = catcol, bty="n", ncol=4, xpd =NA)
+
+dev.off()
 
 
 plotpos<-function(i){
@@ -57,31 +79,4 @@ plotpos<-function(i){
   abline(h=0.95, lty=3)
   abline(h=0.80, lty=2)
 }
-
-
-
-
-windows()
-#pdf(file="classification_rates.pdf")
-par(mfrow=c(2,4), mar=c(0,0,1,0), oma=c(1,6,1,1))
-
-plotpos(1)
-axis(2, at=c(-1, -0.5, 0, 0.5, 1), labels=c(1, 0.5, 0, 0.5, 1),las=1)
-mtext("Classification Rate", 2, line=4, adj=-0.5)
-plotpos(2)
-plotpos(3)
-plotpos(4)
-legend(x=6, y=-0.4, legend=c("0", "0.125", "0.25", "0.5"), pch=22, pt.cex=2, title="Pedigree\nRelatedness", col=borcol, pt.bg = catcol, bty="n")
-plotpos(5)
-# axis(1, at=c(1,5,8,11), labels=c("0", "0.125", "0.25", "0.5"))
-axis(2, at=c(-1, -0.5, 0, 0.5, 1), labels=c(1, 0.5, 0, 0.5, 1),las=1)
-plotpos(6)
-# axis(1,at=c(1,5,8,11), labels=c("0", "0.125", "0.25", "0.5"))
-plotpos(7)
-# axis(1,at=c(1,5,8,11), labels=c("0", "0.125", "0.25", "0.5"))
-plotpos(8)
-# axis(1,at=c(1,5,8,11), labels=c("0", "0.125", "0.25", "0.5"))
-
-dev.off()
-
 

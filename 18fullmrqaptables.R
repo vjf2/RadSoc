@@ -12,14 +12,14 @@ matricize<-function(x){
   return(mat)
 }
 
-source("Code/14netlogitM.R")
-
 
 set.seed(1)
 
 options(stringsAsFactors = FALSE)
 
 setwd("C:/Users/froug/Desktop/Real First Chapter")
+
+source("Code/14netlogitM.R")
 
 # load("C:/ZSL/Coancestry/res_social_females_ordered.RData") #in coancestry folder
 
@@ -66,7 +66,7 @@ i=1
   
   df<-merge_pairs(df, smv, "ID1", "ID2", all.x=TRUE, all.y=FALSE)
   
-  df<-df[which(df$sexpair=="MALEMALE"),]
+  df<-df[which(df$sexpair=="FEMALEFEMALE"),]
   
   rel_est[[i]]<-df
   # }

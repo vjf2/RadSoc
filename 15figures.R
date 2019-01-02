@@ -22,7 +22,7 @@ max(p$pvalue)
 
 windows()
 
-# pdf(file="Figures/model_res.pdf", width=14, height=6)
+# pdf(file="Figures/model_res100.pdf", width=14, height=6)
 par(mar=c(5, 4.1, 1, 1))
 boxplot(rsqrel~nsnps+nind,  
         col=adjustcolor(xc, alpha.f=0.5)[c(2:8,1)], 
@@ -32,7 +32,7 @@ boxplot(rsqrel~nsnps+nind,
         yaxt="n",
         ylab="Coefficient of Partial Determination - Relatedness",
         xlab="Number of Individuals",
-        ylim=c(0,0.73), 
+        ylim=c(min(qdf$rsqrel),0.72), 
         type="n") 
 
 axis(2, las=1)

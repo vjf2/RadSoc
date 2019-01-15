@@ -71,17 +71,4 @@ mtext("Genetic Relatedness",2, outer=TRUE, line=4, cex=1.25)
 
 dev.off()
 
-#table of summary stats
-q<-lapply(ped_est, function(x) {
-  cor<-cor(x$biparental, x$MEst)
-  rmse<-sqrt(mean((x$biparental-x$MEst)^2))
-  nsnps<-x$nsnps[1]
-  return(c(cor, rmse, nsnps))
-  })
-
-someres<-do.call("rbind", q)
-colnames(someres)<-c("cor", "rmse", "nsnps")
-mode(someres)<-"numeric"
-
-someres<-someres[order(someres[,"nsnps"]),]
 

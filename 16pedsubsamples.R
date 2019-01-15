@@ -121,14 +121,13 @@ for (i in 1:length(res)) {
   names(df)<-c("ID1", "ID2", "MEst")
   
   nsnps<-strsplit(names(res)[i], "_")[[1]][1]
-  # nsnps<-substr(nsnps, 2, nchar(nsnps))
   nind<-strsplit(names(res)[i], "_")[[1]][2]
   df$nind<-nind
   df$nsnps<-nsnps
   
   df<-merge_pairs(known_kin, df, "ID1", "ID2", all.x=TRUE, all.y=FALSE)
   
-  df<-df[which(df$biparental %in% c(0, 0.0625, 0.125, 0.25, 0.5)),]
+  # df<-df[which(df$biparental %in% c(0, 0.0625, 0.125, 0.25, 0.5)),]
   
   
   ped_est[[i]]<-df}
@@ -158,7 +157,8 @@ cume_rates<-list()
 
 for (i in 1:length(ped_est)){
   
-  v5<-ped_est[[i]]
+  df<-ped_est[[i]]
+  v5<-df[which(df$biparental %in% c(0, 0.0625, 0.125, 0.25, 0.5)),]
   
   class_rates<-as.data.frame(t(apply(cats, 1, function(x) {
     

@@ -128,12 +128,16 @@ for (i in 1:length(res)) {
   
   df<-merge_pairs(known_kin, df, "ID1", "ID2", all.x=TRUE, all.y=FALSE)
   
-  df<-df[which(df$biparental %in% c(0, 0.125, 0.25, 0.5)),]
+  df<-df[which(df$biparental %in% c(0, 0.0625, 0.125, 0.25, 0.5)),]
   
   
   ped_est[[i]]<-df}
 
+# save(ped_est, file="ped_est.RData")
+
 #Classify false positives and false negatives
+
+load("ped_est.RData")
 
 #cutoff values
 b1<-0.0362
@@ -142,40 +146,41 @@ b3<-0.175
 b4<-0.4
 
 cats<-matrix(c(0, b1, 0, 
-               # b1, b2, 0.0625,
+               b1, b2, 0.0625,
                b2, b3, 0.125,
                b3, b4, 0.25,
                b4, 1, 0.5), byrow = TRUE, 
-                nrow=4)
+              nrow=5)
 
-#100 snps
+#classification rates
 
 cume_rates<-list()
 
 for (i in 1:length(ped_est)){
-
-v5<-ped_est[[i]]
-
-class_rates<-as.data.frame(t(apply(cats, 1, function(x) {
   
-  v5$classification<-cut(v5$MEst, x[1:2], include.lowest = TRUE)
+  v5<-ped_est[[i]]
   
-  tabl<-as.data.frame(table(v5$classification, v5$biparental))
+  class_rates<-as.data.frame(t(apply(cats, 1, function(x) {
+    
+    v5$classification<-cut(v5$MEst, x[1:2], include.lowest = TRUE)
+    
+    tabl<-as.data.frame(table(v5$classification, v5$biparental))
+    
+    correct<-tabl[tabl$Var2==x[3], "Freq"]
+    incorrect<-sum(tabl[!tabl$Var2==x[3], "Freq"])
+    
+    res<-c(x, correct, incorrect, v5$nsnps[1])
+    
+    return(res)
+  })))
   
-  correct<-tabl[tabl$Var2==x[3], "Freq"]
-  incorrect<-sum(tabl[!tabl$Var2==x[3], "Freq"])
+  names(class_rates)<-c("lower_bound", "upper_bound", "expected", "true_positive",
+                        "false_positive", "nsnps")
   
-  res<-c(x, correct, incorrect, v5$nsnps[1])
   
-  return(res)
-})))
-
-names(class_rates)<-c("lower_bound", "upper_bound", "expected", "true_positive",
-                      "false_positive", "nsnps")
-
-
-cume_rates[[i]]<-class_rates
+  cume_rates[[i]]<-class_rates
 }
+
 
 cume_rates<-do.call("rbind", cume_rates)
 cume_rates<-as.data.frame(apply(cume_rates, 2, as.numeric))
@@ -194,9 +199,27 @@ points(cume_rates$nsnps, cume_rates$fp_prop, col="red")
 write.csv(cume_rates,"kin_classifications.csv")
 
 
+#get table of false positive and true positives results
 
+tptab<-reshape2::dcast(nsnps~expected, value.var ="tp_prop",data=cume_rates)
 
+fptab<-reshape2::dcast(nsnps~expected, value.var ="fp_prop",data=cume_rates)
 
+#combine with output from 19pirate_plots for table
+
+#table of summary stats
+q<-lapply(ped_est, function(x) {
+  cor<-cor(x$biparental, x$MEst)
+  rmse<-sqrt(mean((x$biparental-x$MEst)^2))
+  nsnps<-x$nsnps[1]
+  return(c(cor, rmse, nsnps))
+})
+
+someres<-do.call("rbind", q)
+colnames(someres)<-c("cor", "rmse", "nsnps")
+mode(someres)<-"numeric"
+
+someres<-someres[order(someres[,"nsnps"]),]
 
 
 

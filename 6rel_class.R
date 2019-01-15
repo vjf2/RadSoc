@@ -2,19 +2,28 @@
 
 #run sequoia_parentage first
 
+library(SocGen)
+
 options(stringsAsFactors = FALSE)
 
 reals<-read.table("C:/ZSL/Coancestry/emp4235/RelatednessEstimates.Txt", sep=",", row.names = 1)
 
 names(reals)<-c("ID1", "ID2", "Pair", "TrioEst","WEst","LLEst","LREst","REst","QGEst","MEst")
 
-r<-reals[,c(1,2,10)]
+r<-reals[,c("ID1", "ID2", "MEst")]
 
 names(r)[3]<-"relatedness"
 
+SNPd<-unique(c(reals$ID1, reals$ID2))
+
 #add self-pairs into relatedness
 
+consensusped<-read.csv("consensusped.csv", row.names=1)
+
 r<-rbind(r, data.frame(ID1=consensusped$id, ID2=consensusped$id, relatedness=rep(1, length(consensusped$id))))
+
+parented<-consensusped[which(consensusped$dam!="<NA>" & consensusped$sire!="<NA>" &
+                               consensusped$id %in% SNPd),]
 
 bothpar<-parented[,1:3]
 
@@ -22,13 +31,17 @@ bothpar<-parented[,1:3]
 
 pedids<-bothpar$id
 
+#try without crazy rules
+
+
+
 #rm JMY, unsupported
-pedids<-setdiff(pedids, "JMY")
+# pedids<-setdiff(pedids, "JMY")
 
 r1<-r[intersect(which(r$ID1 %in% pedids),  which(r$ID2 %in% pedids)),]
 
 newkin<-expected_kinship(mother_id = "dam",
-                         father_id = "sire", sex = "sex", data=consensusped)
+                         father_id = "sire", sex="sex", data=consensusped)
 
 re<-merge_pairs(r1, newkin[,c(1,2,5)], "ID1", "ID2", "ID1", "ID2", all.x=TRUE, all.y=FALSE)
 
@@ -63,24 +76,29 @@ aggregate(relatedness.x~biparental, data=re, mean)
 #unsupported old data
 #add parents back-in 
 
-#set up 6400 iterations of MLE in Coancestry
+#rules for dyad inclusion
+#unrelated pairs need to have all 4 parents genotyped and unrelated
+#all r =0.5
+#all r = 0.25 if all 4 parents in pedigree
+# r = 0.0625 and 0.125 if all 4 parents known and at least 3 genotyped in sample
 
 re$countna<-apply(re[,9:12], 1, function(x) sum(is.na(x)))
 
 re$rmrel<-ifelse(re$biparental=="0" & re$countna>0, "yes", "")
 
-re$relsum<-apply(re[,9:12], 1, function(x) sum(x, na.rm=TRUE))
+re$relmax<-apply(re[,9:12], 1, max)
 
-re$rmrel<-ifelse(re$biparental=="0" & re$relsum>0.05, "yes", re$rmrel)
+#second highest value
+re$relmax2<-apply(re[,9:12], 1, function(x) sort(x, na.last=FALSE)[4-1])
 
-re$rmrel<-ifelse(re$biparental=="0.125" & re$countna>2, "yes", re$rmrel)
+re$rmrel<-ifelse(re$biparental=="0" & re$relmax>0.0362, "yes", re$rmrel)
 
+re$rmrel<-ifelse(re$biparental %in% c(0.0625, 0.125) & re$countna>2, "yes", re$rmrel)
 
 
 ref<-re[which(re$rmrel!="yes"),]
 
 table(ref$biparental)
-
 
 #add in known parents
 

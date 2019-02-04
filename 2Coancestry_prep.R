@@ -18,6 +18,14 @@ check<-cbind(raw[,2],as.data.frame(check))
 
 write.table(check, sep="\t", file="coancestry_version.txt", row.names = FALSE, col.names = FALSE)
 
+#get afreq from Sequoia
+
+afreqid<-read.table("afreqid.txt")[[1]]
+
+check_norel<-check[which(check[,1] %in% afreqid),]
+
+write.table(check_norel, sep="\t", file="coancestry_version_afreq.txt", row.names = FALSE, col.names = FALSE)
+
 #use coancestry empirical to generate allele frequencies
 
 #error file
@@ -228,3 +236,6 @@ rmse_comb<-rbind(rmse_po,
                  rmse_hs, rmse_fc, rmse_hc, rmse_ur, rmse_all, cor_all)
 
 # write.csv(rmse_comb, "Figures/rmse_sim_error.csv")
+
+write.csv(rels, "rels.csv", row.names = FALSE)
+

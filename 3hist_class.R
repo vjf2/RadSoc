@@ -40,7 +40,7 @@ hist(v5$IBD[which(v5$expected==0)], probability = FALSE,
   segments(0, 0, 0.6, 0)
 
 mtext("Frequency", side = 2, line = 2.5)
-mtext("Genomic Relatedness", side = 1, line = 2.5)
+mtext("Genetic Relatedness", side = 1, line = 2.5)
 
 
 w<-v5$IBD[which(v5$expected==0.0)]
@@ -77,7 +77,7 @@ textwidths[1] <- 0
 legend(x=0, y=60, legend=c("0", "0.0625", "0.125", "0.25", "0.5"), pch=22, pt.cex=1, title="", col=borcol, pt.bg = catcol, bty="n", horiz=TRUE, x.intersp = 0.5, 
        text.width = c(0.02, 0.005, 0.035, 0.045, 0.09), xpd=TRUE, cex=0.8)
        
-text(x=0.3, y=58,"Pedigree Relatedness", cex=0.9)
+text(x=0.3, y=58,"True Relatedness", cex=0.9)
 
 b1<-0.0362
 b2<-0.0935

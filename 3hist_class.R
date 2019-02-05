@@ -75,7 +75,7 @@ textwidths[1] <- 0
 
 
 legend(x=0, y=60, legend=c("0", "0.0625", "0.125", "0.25", "0.5"), pch=22, pt.cex=1, title="", col=borcol, pt.bg = catcol, bty="n", horiz=TRUE, x.intersp = 0.5, 
-       text.width = c(0.02, 0.005, 0.04, 0.045, 0.09), xpd=TRUE, cex=0.8)
+       text.width = c(0.02, 0.005, 0.035, 0.045, 0.09), xpd=TRUE, cex=0.8)
        
 text(x=0.3, y=58,"Pedigree Relatedness", cex=0.9)
 

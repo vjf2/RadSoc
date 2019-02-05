@@ -94,6 +94,9 @@ m<-reshape2::melt(rels, id.vars=c("Ind1", "Ind2", "RelCat"), na.rm=TRUE)
 
 m$value<-as.numeric(m$value)
 
+#sort so that maximum likelihoods are both at end
+
+m$variable<-factor(m$variable, levels(m$variable)[c(2:6,1)])
 
 #don't forget to remove either wang or lynchli at end
 
@@ -101,7 +104,7 @@ m$value<-as.numeric(m$value)
 #4 plots
 
 windows()
-# pdf(file="Figures/simcats.pdf", width=7)
+# pdf(file="Figures/Figure_S2.pdf", width=7)
 # par(mfrow=c(5,1),mar=c(2.6,10.8,2.1,2.1), oma=c(3,3,0,0), mgp=c(4,1,0))
 
 par(mfrow=c(5,1), oma = (c(6,6,0,0) + 0.1), mar = (c(0.5,0,1.5,1) + 0.1))
@@ -118,20 +121,6 @@ boxplot(value~variable, data=m[m$RelCat=="PO",], col=rainbow(6),
 axis(2,las=1, cex.axis=1.3)
 
 abline(h=0.5, lty=2, col="darkgrey")
-
-# Leave out full siblings since few expected
-# boxplot(value~variable, data=m[m$RelCat=="FS",], col=rainbow(6),
-#         ylab="", 
-#         xaxt="n", 
-#         yaxt="n", 
-#         cex.lab=1.3,
-#         boxwex=0.5,
-#         # ylim=c(0.33,0.6),
-#         main="Full Siblings", cex.main=1.3)
-# 
-# axis(2,las=1, cex.axis=1.3)
-# 
-# abline(h=0.5, lty=2, col="darkgrey")
 
 boxplot(value~variable, data=m[m$RelCat=="HS",], col=rainbow(6),
         ylab="", 
@@ -179,7 +168,7 @@ boxplot(value~variable, data=m[m$RelCat=="UR",], col=rainbow(6),
 
 axis(2,las=1, cex.axis=1.3)
 
-axis(1, at=1:6, labels=c("TrioEst","WEst","LREst","REst","QGEst","MEst"), 
+axis(1, at=1:6, labels=c("Wang", "LynchRd", "Ritland", "QuellerGt", "DyadML", "TrioML"), 
      tick=TRUE, cex.axis=1.3, padj = 0.5, las=1)
 
 abline(h=0, lty=2, col="darkgrey")
@@ -209,9 +198,6 @@ rels<-rels[!rels$RelCat=="FS",]
 
 rmse_po<-apply(rels[rels$RelCat=="PO",c(4:9)], 2, function(x) {
   sqrt((1/nrow(rels[rels$RelCat=="PO",]))*sum(abs(x-rels[rels$RelCat=="PO","expected"])^2))})
-
-# rmse_fs<-apply(rels[rels$RelCat=="FS",c(4:9)], 2, function(x) {
-  # sqrt((1/nrow(rels[rels$RelCat=="FS",]))*sum(abs(x-rels[rels$RelCat=="FS","expected"])^2))})
 
 rmse_hs<-apply(rels[rels$RelCat=="HS",c(4:9)], 2, function(x) {
   sqrt((1/nrow(rels[rels$RelCat=="HS",]))*sum(abs(x-rels[rels$RelCat=="HS","expected"])^2))})

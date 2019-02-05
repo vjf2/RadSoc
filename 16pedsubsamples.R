@@ -141,8 +141,8 @@ load("ped_est.RData")
 #cutoff values
 b1<-0.0362
 b2<-0.0935
-b3<-0.175
-b4<-0.4
+b3<-0.1923
+b4<-0.3925
 
 cats<-matrix(c(0, b1, 0, 
                b1, b2, 0.0625,

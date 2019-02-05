@@ -9,8 +9,8 @@ load("ped_est.RData")
 #cutoff values
 b1<-0.0362
 b2<-0.0935
-b3<-0.175
-b4<-0.4
+b3<-0.1923
+b4<-0.3925
 
 cats<-matrix(c(0, b1, 0, 
                b1, b2, 0.0625,
@@ -23,9 +23,10 @@ colnames(cats)<-c("lb", "ub", "cat")
 
 ord<-c(7,1,3,5,8,2,4,6)
 
-windows()
-#pdf(file="Figures/confusion_matrix.pdf", width=16, height=9)
-par(mfrow=c(2,4), mar=c(0,0,3,3), oma=c(7, 7, 0, 0))
+# windows()
+
+pdf(file="Figures/Figure_4.pdf", width=6.65354, height=4.1122)
+par(mfrow=c(2,4), mar=c(0,0,1.5,0.2), oma=c(4, 5, 0, 0))
 
 for (i in ord) {
 
@@ -58,22 +59,24 @@ image(1:ncol(x), 1:ncol(x),
       xaxt='n', yaxt='n', zlim=c(-10, 10))
 
 if(i %in% c(8,2,4,6)){
-axis(1, at=1:ncol(x), labels=colnames(x), cex.axis=1)}
+axis(1, at=1:ncol(x), labels=colnames(x), cex.axis=0.85)
+axis(1, at=3, labels=0.125, cex.axis=0.85)}
 
 if(i %in% c(7,8)){
-axis(2, at=ncol(x):1, labels=colnames(x), las=1, cex.axis=1)}
+axis(2, at=ncol(x):1, labels=colnames(x), las=1, cex.axis=0.85)
+  }
 
 
 abline(h = 0:ncol(x) + 0.5, col = 'gray')
 abline(v = 0:ncol(x) + 0.5, col = 'gray')
 text(1:5, rep(5:1, each=5), 
-     labels = sub('^0$', '', round(c(x.orig), 0)))
-box(lwd=2)
-text(3, 5.8, v5[1,"nsnps"], xpd=NA, cex=1.5)
+     labels = sub('^0$', '', round(c(x.orig), 0)), cex=1)
+box(lwd=1)
+text(3, 5.8, v5[1,"nsnps"], xpd=NA, cex=1)
 
 }
 
-mtext("Relationship Category Assignment from Pedigree",1, outer=TRUE, line=5, cex=1.25)
-mtext("Relationship Category Assignment from Genetics",2, outer=TRUE, line=5, cex=1.25)
+mtext("Relationship Category Assignment from Pedigree",1, outer=TRUE, line=3, cex=0.75)
+mtext("Relationship Category Assignment from Genetics",2, outer=TRUE, line=4, cex=0.75)
 
 dev.off()

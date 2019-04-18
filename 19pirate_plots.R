@@ -58,32 +58,38 @@ lvec<-c(rep(1,57),
 lmat<-matrix(lvec, nrow=100, ncol=4)
 
 windows()
-#pdf(file="Figures/Figure_2.pdf", width=6.65354, height=4.132634)
+
+pdf(file="Figures/Figure_2_R1.pdf", width=6, height=3.708)
 par(mar=c(0,0,0,0), oma=c(4,3.5,0.5,0.1))
 
 layout(lmat)
 
 pp(ped_est[[7]], "n", "n", nsnps=50, ylim=c(-0.02, 0.81))
-axis(2, las=1, at=c(0,0.1,0.2,0.3,0.4,0.5, 0.6, 0.7, 0.8), cex.axis=0.8, srt=45, xpd=TRUE)
+axis(2, las=1, at=c(0,0.1,0.2,0.3,0.4,0.5, 0.6, 0.7, 0.8), cex.axis=1, srt=45, xpd=TRUE)
 pp(ped_est[[1]], "n", "n", nsnps=100, ylim=c(-0.02, 0.81))
 pp(ped_est[[3]], "n", "n", nsnps=200, ylim=c(-0.02, 0.81))
 pp(ped_est[[5]], "n", "n", nsnps=400, ylim=c(-0.02, 0.81))
 pp(ped_est[[8]], "n", "n", nsnps=800, ylim=c(-0.02, 0.61))
-axis(1, at=c(1,3,5), labels=c(0,0.125,0.5), cex.axis=0.8)
-axis(1, at=c(2,4), labels=c(0.0625,0.25), cex.axis=0.8)
-axis(2, las=1, at=c(0,0.1,0.2,0.3,0.4,0.5, 0.6), cex.axis=0.8)
+axis(1, at=c(1,3,5), labels=c(0,0.125,0.5), cex.axis=1)
+axis(1, at=c(2,4), labels=FALSE, cex.axis=1)
+axis(2, las=1, at=c(0,0.1,0.2,0.3,0.4,0.5, 0.6), cex.axis=1)
 pp(ped_est[[2]], "n", yaxt="n", nsnps=1600, ylim=c(-0.02, 0.61))
-axis(1, at=c(1,3,5), labels=c(0,0.125,0.5), cex.axis=0.8)
-axis(1, at=c(2,4), labels=c(0.0625,0.25), cex.axis=0.8)
+axis(1, at=c(1,3,5), labels=c(0,0.125,0.5), cex.axis=1)
+axis(1, at=c(2,4), labels=FALSE, cex.axis=1)
 
 pp(ped_est[[4]], "n", yaxt="n", nsnps=3200, ylim=c(-0.02, 0.61))
-axis(1, at=c(1,3,5), labels=c(0,0.125,0.5), cex.axis=0.8)
-axis(1, at=c(2,4), labels=c(0.0625,0.25), cex.axis=0.8)
+axis(1, at=c(1,3,5), labels=c(0,0.125,0.5), cex.axis=1)
+axis(1, at=c(2,4), labels=FALSE, cex.axis=1)
 
 pp(ped_est[[6]], "n", yaxt="n", nsnps=4235, ylim=c(-0.02, 0.61))
-axis(1, at=c(1,3,5), labels=c(0,0.125,0.5), cex.axis=0.8)
-axis(1, at=c(2,4), labels=c(0.0625,0.25), cex.axis=0.8)
+ axis(1, at=c(1,3,5), labels=c(0,0.125,0.5), cex.axis=1)
+ axis(1, at=c(2,4), labels=FALSE, cex.axis=1)
 
+
+# lablist<-as.vector(c(0,0.0625,0.125,0.25,0.5))
+# axis(1, at=seq(1, 5, by=1), labels = FALSE)
+# text(seq(1, 5, by=1), par("usr")[3] -0.07, labels = lablist, srt = 330, pos = 1, xpd = NA)
+# 
 
 mtext("Pedigree Relatedness",1, outer=TRUE, line=2.5, cex=0.75)
 mtext("Genetic Relatedness",2, outer=TRUE, line=2.5, cex=0.75)

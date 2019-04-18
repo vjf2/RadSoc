@@ -25,7 +25,7 @@ MLplot<-cloud(s2, panel.3d.cloud = panel.3dbars, col="gray48",
       #shade=TRUE,
       lab.cex=0.5,
       cex.axis=0.5,
-      xlab = "SNPs", ylab = "Individuals", zlab=list("Median Deviation",rot=90),
+      xlab = "SNPs", ylab = "Individuals", zlab=list("Median RMSE",rot=90),
       col.facet = level.colors(s2, at = do.breaks(range(s2), 32),
                                col.regions = colorRampPalette(c("white", errorcol))(32),          
                                colors = TRUE),
@@ -55,7 +55,7 @@ QGplot<-cloud(s2, panel.3d.cloud = panel.3dbars, col="gray48",
           scales = list(arrows = FALSE, cex=0.4, distance=1.2, tck=1.3), 
           #shade=TRUE,
           cex=0.5,
-          xlab = "SNPs", ylab = "Individuals", zlab=list("Median Deviation",rot=90),
+          xlab = "SNPs", ylab = "Individuals", zlab=list("Median RMSE",rot=90),
           col.facet = level.colors(s2, at = do.breaks(range(s2), 32),
                                    col.regions = colorRampPalette(c("white", errorcol))(32),          
                                    colors = TRUE),
@@ -83,6 +83,6 @@ QGplot <- update(QGplot, par.settings = pset)
 # MLplot<-update(MLplot, par.settings = list(fontsize = list(text = 8)))
 # QGplot<-update(QGplot, par.settings = list(fontsize = list(text = 8)))
 
-pdf(file="Figures/Figure_1.pdf",width=6.65354, height=4.132634)
+pdf(file="Figures/Figure_1_R1.pdf",width=6.65354, height=4.132634)
 grid.arrange(MLplot, QGplot, ncol=2)
 dev.off()

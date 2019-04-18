@@ -25,8 +25,9 @@ ord<-c(7,1,3,5,8,2,4,6)
 
 # windows()
 
-pdf(file="Figures/Figure_4.pdf", width=6.65354, height=4.1122)
-par(mfrow=c(2,4), mar=c(0,0,1.5,0.2), oma=c(4, 5, 0, 0))
+# pdf(file="Figures/Figure_3_R1.pdf", width=6.65354, height=4.1122)
+pdf(file="Figures/Figure_3_R1.pdf", width=5.2, height=3.2138)
+par(mfrow=c(2,4), mar=c(0,0,1.5,0.2), oma=c(4, 6, 0, 0))
 
 for (i in ord) {
 
@@ -55,15 +56,15 @@ image(1:ncol(x), 1:ncol(x),
       -(x[, nrow(x):1]), xlab='', ylab='',
       col=colorRampPalette(c(hsv(h = 0, s = 0.9, v = 0.9, alpha = 1), 
                              hsv(h = 0, s = 0, v = 0.9, alpha = 1), 
-                             hsv(h = 2/6, s = 0.9, v = 0.9, alpha = 1)))(41), 
+                             hsv(h = 0.6, s = 0.9, v = 0.9, alpha = 1)))(41), 
       xaxt='n', yaxt='n', zlim=c(-10, 10))
 
 if(i %in% c(8,2,4,6)){
-axis(1, at=1:ncol(x), labels=colnames(x), cex.axis=0.85)
-axis(1, at=3, labels=0.125, cex.axis=0.85)}
+axis(1, at=1:ncol(x), labels=colnames(x), cex.axis=0.90)
+axis(1, at=3, labels=0.125, cex.axis=0.90)}
 
 if(i %in% c(7,8)){
-axis(2, at=ncol(x):1, labels=colnames(x), las=1, cex.axis=0.85)
+axis(2, at=ncol(x):1, labels=colnames(x), las=1, cex.axis=0.90)
   }
 
 
@@ -76,7 +77,7 @@ text(3, 5.8, v5[1,"nsnps"], xpd=NA, cex=1)
 
 }
 
-mtext("Relationship Category Assignment from Pedigree",1, outer=TRUE, line=3, cex=0.75)
-mtext("Relationship Category Assignment from Genetics",2, outer=TRUE, line=4, cex=0.75)
+mtext("Relationship Category Assignment from Pedigree",1, outer=TRUE, line=3, cex=0.70)
+mtext("Relationship Category Assignment from Genetics",2, outer=TRUE, line=4, cex=0.70)
 
 dev.off()

@@ -2,6 +2,8 @@
 
 #setwd("..")
 
+#Need to ensure that snps selected aren't monomorphic
+
 library(SocGen)
 
 options(stringsAsFactors = FALSE)

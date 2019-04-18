@@ -66,11 +66,7 @@ consensusped<-compareOUT$ConsensusPed
                          
 consensusped$sex<-lhl$sex[match(consensusped$id, lhl$dolphin_id)] 
 
-# write.csv(ped, "sequoia_pedigree_output.csv")
-
-parented<-consensusped[which(consensusped$dam!="<NA>" & consensusped$sire!="<NA>" &
-                               consensusped$id %in% SNPd),]
-
+# write.csv(consensusped, "consensusped.csv")
 
 #missing mums
 cc<-compareOUT$P1only[which(compareOUT$P1only$id!="<NA>"
@@ -88,5 +84,34 @@ ConfPr<-EstConf(Ped = ped, LifeHistData = LH_dolphins, Specs = ped_with_sibs$Spe
         quiet = TRUE)
 
 save(ConfPr, file="confrpr.RData")
+
+
+#create list of IDs that don't have a parent in the sample
+
+afreqid<-ped_with_sibs$Pedigree$id[which(is.na(ped_with_sibs$Pedigree$dam) & is.na(ped_with_sibs$Pedigree$sire))]
+
+afreqid<-afreqid[1:161] #Remove BMT and dummies
+
+#what about individuals with siblings in the data?
+
+write.table(afreqid, sep="\t",file="afreqid.txt", row.names = FALSE, col.names = FALSE)
+
+
+#All individuals with a known mom who isn't in the sample
+compareOUT$MergedPed[which(is.na(compareOUT$MergedPed$dam.2) & 
+                             !is.na(compareOUT$MergedPed$dam.1) &
+                             !is.na(compareOUT$MergedPed$id)),]
+
+mom_counts<-table(compareOUT$MergedPed$dam.1[which(is.na(compareOUT$MergedPed$dam.2) & 
+                                   !is.na(compareOUT$MergedPed$dam.1) &
+                                   !is.na(compareOUT$MergedPed$id))]
+)
+
+sibmoms<-names(mom_counts)[which(mom_counts>1)]
+
+check_imputed<-compareOUT$MergedPed[which(compareOUT$MergedPed$dam.1 %in% sibmoms &
+                             !is.na(compareOUT$MergedPed$id)),]
+
+check_imputed[order(check_imputed$dam.1),]
 
 
